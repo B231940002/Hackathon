@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router';
-import Home from './components/Home';
-import ReportForm from './components/ReportForm1';
-import SafetyHeatmap from './components/SafetyHeatmap';
-import AdminDashboard from './components/AdminDashboard';
-import SOSConfirmModal from './components/SOSConfirmModal';
+import Home from './pages/Home';
+import ReportForm from './pages/ReportForm1';
+import SafetyHeatmap from './pages/SafetyHeatmap';
+import AdminDashboard from './pages/AdminDashboard';
+import SOSInfo from './pages/SOSInfo';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
 export default function App() {
   return (
@@ -23,14 +25,19 @@ function AppContent() {
     <>
       <Routes>
         <Route path="/" element={<Home onSOSClick={() => setShowSOSModal(true)} />} />
+
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          
         <Route path="/report" element={<ReportForm />} />
         <Route path="/heatmap" element={<SafetyHeatmap />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/sos-info" 
+        element={<SOSInfo onSOSClick={() => setShowSOSModal(true)} />}
+/>
       </Routes>
 
-      {showSOSModal && (
-        <SOSConfirmModal onClose={() => setShowSOSModal(false)} />
-      )}
+      
     </>
   );
 }
