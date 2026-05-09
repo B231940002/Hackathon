@@ -1,180 +1,165 @@
 import { useNavigate } from 'react-router';
-import { ArrowLeft, MapPin, AlertTriangle, Home, FileText, Bell } from 'lucide-react';
+import {
+  Bell,
+  FileText,
+  ArrowLeft,
+  AlertTriangle,
+  Home as HomeIcon,
+  Info,
+  ShieldAlert,
+  HeartHandshake,
+  MapPin,
+} from 'lucide-react';
 
 export default function SafetyHeatmap() {
   const navigate = useNavigate();
 
   const hotspots = [
-    { id: 1, label: 'Building B Hallway', reports: 12, x: '25%', y: '30%' },
-    { id: 2, label: 'Cafeteria', reports: 8, x: '60%', y: '45%' },
-    { id: 3, label: 'Gymnasium', reports: 5, x: '70%', y: '70%' },
+    { id: 1, label: 'Б байрны коридор', reports: 12, x: '25%', y: '30%', risk: 'High' },
+    { id: 2, label: 'Цайны газар', reports: 8, x: '60%', y: '45%', risk: 'Medium' },
+    { id: 3, label: 'Спортын заал', reports: 5, x: '70%', y: '70%', risk: 'Low' },
   ];
 
+  const handleSOS = () => {
+    alert("SOS дуудлага илгээгдлээ!");
+  };
+
   return (
-    <div className="min-h-screen pb-24">
-      {/* Header */}
-      <div className="bg-gradient-to-br from-[#1E3A8A] via-[#2563EB] to-[#3B82F6] px-6 pt-8 pb-6 rounded-b-[32px] shadow-[0_8px_32px_rgba(37,99,235,0.2)]">
-        <div className="max-w-md mx-auto">
+    <div className="min-h-screen bg-[#F1F5F9] pb-32">
+      {/* Header - Будэг нил ягаан (Muted Lavender) */}
+      <div className="bg-[#E0E7FF] px-6 pt-10 pb-12 rounded-b-[40px] shadow-sm relative overflow-hidden">
+        {/* Чимэглэл - Зөөлөн дугуйнууд */}
+        <div className="absolute top-[-20px] right-[-20px] w-32 h-32 bg-[#C7D2FE]/40 rounded-full blur-2xl"></div>
+        
+        <div className="max-w-md mx-auto relative z-10">
           <button
             onClick={() => navigate('/')}
-            className="mb-4 p-2 hover:bg-white/10 rounded-full transition-colors"
+            className="mb-6 p-2 bg-white/50 hover:bg-white/80 rounded-2xl transition-all"
           >
-            <ArrowLeft className="w-6 h-6 text-white" />
+            <ArrowLeft className="w-5 h-5 text-[#4338CA]" />
           </button>
-          <h1 className="text-white text-[28px] font-bold mb-2">Аюулын газрын зураг</h1>
-          <p className="text-white/80 text-[14px]">Шинэчлэгдсэн: 5 минутын өмнө</p>
-        </div>
-      </div>
-
-      <div className="max-w-md mx-auto px-6 -mt-4">
-
-        {/* Legend */}
-        <div className="bg-white rounded-[24px] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.08)] mb-5 border border-[#E2E8F0] mt-6">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-gradient-to-br from-[#DC2626] to-[#EF4444] rounded-full shadow-sm"></div>
-              <span className="text-[13px] font-semibold text-[#1E3A8A]">Өндөр эрсдэл</span>
+          <div className="flex justify-between items-end">
+            <div>
+              <h1 className="text-[#312E81] text-[26px] font-bold tracking-tight">Аюулын зураглал</h1>
+              <p className="text-[#4338CA]/70 text-[13px] mt-1 font-medium">Шинэчлэгдсэн: 5 минутын өмнө</p>
             </div>
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-gradient-to-br from-[#F59E0B] to-[#FBBF24] rounded-full shadow-sm"></div>
-              <span className="text-[13px] font-semibold text-[#1E3A8A]">Дунд</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-gradient-to-br from-[#16A34A] to-[#22C55E] rounded-full shadow-sm"></div>
-              <span className="text-[13px] font-semibold text-[#1E3A8A]">Аюулгүй</span>
+            <div className="bg-white/40 p-3 rounded-2xl border border-white/20">
+              <ShieldAlert className="w-6 h-6 text-[#4338CA]" />
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Heatmap Visualization */}
-        <div className="bg-white rounded-[24px] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.08)] mb-5 border border-[#E2E8F0]">
-        <div className="aspect-[4/3] bg-[#F8FAFC] rounded-[12px] border-2 border-[#E2E8F0] relative overflow-hidden">
-          {/* School Floor Plan Background */}
-          <div className="absolute inset-0 p-4">
-            {/* Building outline */}
-            <div className="w-full h-full border-2 border-[#CBD5E1] rounded-lg relative">
-              {/* Rooms/Areas */}
-              <div className="absolute top-4 left-4 w-[30%] h-[35%] border border-[#CBD5E1] rounded bg-white/50"></div>
-              <div className="absolute top-4 right-4 w-[30%] h-[35%] border border-[#CBD5E1] rounded bg-white/50"></div>
-              <div className="absolute bottom-4 left-4 w-[40%] h-[35%] border border-[#CBD5E1] rounded bg-white/50"></div>
-              <div className="absolute bottom-4 right-4 w-[35%] h-[35%] border border-[#CBD5E1] rounded bg-white/50"></div>
+      <div className="max-w-md mx-auto px-6 -mt-8 relative z-20">
+        {/* Status Legend - Clean & Simple */}
+        <div className="bg-white/90 backdrop-blur-md rounded-[24px] p-4 shadow-sm mb-6 flex justify-around items-center border border-white">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-[#EF4444] rounded-full"></div>
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Өндөр</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-[#F59E0B] rounded-full"></div>
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Дунд</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-[#10B981] rounded-full"></div>
+            <span className="text-[11px] font-bold text-slate-500 uppercase">Аюулгүй</span>
+          </div>
+        </div>
 
-              {/* Hallway */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[10%] bg-[#E2E8F0]/30"></div>
+        {/* Heatmap Section - Буцаад хуучин хэлбэрээр (Original Floor Plan) */}
+        <div className="bg-white rounded-[28px] p-4 shadow-sm mb-6 border border-slate-200">
+          <div className="aspect-[4/3] bg-[#F8FAFC] rounded-[16px] border-2 border-[#E2E8F0] relative overflow-hidden">
+            {/* School Floor Plan Background Layout */}
+            <div className="absolute inset-0 p-4 opacity-60">
+              <div className="w-full h-full border-2 border-[#CBD5E1] rounded-lg relative">
+                {/* Rooms/Areas */}
+                <div className="absolute top-4 left-4 w-[30%] h-[35%] border border-[#CBD5E1] rounded bg-white"></div>
+                <div className="absolute top-4 right-4 w-[30%] h-[35%] border border-[#CBD5E1] rounded bg-white"></div>
+                <div className="absolute bottom-4 left-4 w-[40%] h-[35%] border border-[#CBD5E1] rounded bg-white"></div>
+                <div className="absolute bottom-4 right-4 w-[35%] h-[35%] border border-[#CBD5E1] rounded bg-white"></div>
+                {/* Hallway */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[12%] bg-[#E2E8F0]/50 rounded-sm"></div>
+              </div>
             </div>
 
             {/* Hotspot Indicators */}
             {hotspots.map((spot) => (
-              <div
-                key={spot.id}
-                className="absolute"
-                style={{ left: spot.x, top: spot.y }}
-              >
-                {/* Pulsing circle */}
+              <div key={spot.id} className="absolute transition-transform hover:scale-110" style={{ left: spot.x, top: spot.y }}>
                 <div className="relative">
-                  <div className="absolute -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-[#DC2626] rounded-full opacity-20 animate-ping"></div>
-                  <div className="absolute -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-[#DC2626] rounded-full opacity-40"></div>
-                  <div className="absolute -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-[#DC2626] rounded-full flex items-center justify-center">
-                    <AlertTriangle className="w-4 h-4 text-white" />
+                  <div className="absolute -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-[#4F46E5] rounded-full opacity-20 animate-ping"></div>
+                  <div className="absolute -translate-x-1/2 -translate-y-1/2 w-7 h-7 bg-[#4338CA] rounded-full shadow-md flex items-center justify-center border-2 border-white">
+                    <AlertTriangle className="w-3 h-3 text-white" />
                   </div>
                 </div>
               </div>
             ))}
-          </div>
 
-          {/* Floor Plan Label */}
-          <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg text-[11px] font-bold text-[#1E3A8A]">
-            Үндсэн байр - 1 давхар
+            <div className="absolute top-3 left-3 bg-white/90 px-3 py-1.5 rounded-lg text-[10px] font-bold text-[#312E81] border border-slate-200 uppercase tracking-tight">
+              Үндсэн байр - 1 Давхар
+            </div>
           </div>
         </div>
-        </div>
 
-        {/* Hotspot List */}
-        <div className="bg-white rounded-[24px] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#E2E8F0]">
-          <h2 className="text-[20px] font-bold text-[#1E3A8A] mb-4">Эрсдэлтэй газрууд</h2>
-
-          <div className="space-y-3">
-            {hotspots.map((spot) => (
-              <div key={spot.id} className="flex items-center gap-3 p-4 bg-gradient-to-br from-[#FEE2E2] to-[#FECACA] rounded-[18px] border border-[#FCA5A5]">
-                <div className="bg-gradient-to-br from-[#DC2626] to-[#EF4444] rounded-full w-12 h-12 flex items-center justify-center flex-shrink-0 shadow-lg">
-                  <MapPin className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1">
-                  <div className="font-bold text-[#1E3A8A] text-[15px] mb-1">
-                    {spot.label}
-                  </div>
-                  <div className="text-[#DC2626] text-[13px] font-semibold">
-                    Сүүлийн 30 өдөрт {spot.reports} мэдээлэл
-                  </div>
-                </div>
-                <div className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white text-[11px] font-bold px-3 py-1.5 rounded-full shadow-md">
-                  ӨНДӨР
-                </div>
+        {/* Areas List - Soft Colors */}
+        <div className="space-y-3 mb-8">
+          <h2 className="text-[18px] font-bold text-slate-800 px-1">Мэдээлэгдсэн цэгүүд</h2>
+          {hotspots.map((spot) => (
+            <div key={spot.id} className="bg-white p-4 rounded-[22px] border border-slate-100 flex items-center gap-4 transition-all active:bg-slate-50">
+              <div className="w-11 h-11 bg-[#EEF2FF] rounded-xl flex items-center justify-center flex-shrink-0">
+                <MapPin className="w-5 h-5 text-[#4338CA]" />
               </div>
-            ))}
-          </div>
+              <div className="flex-1">
+                <h3 className="font-bold text-slate-800 text-[14px]">{spot.label}</h3>
+                <p className="text-slate-400 text-[12px]">
+                  Сүүлийн сард <span className="text-[#4338CA] font-medium">{spot.reports} удаа</span>
+                </p>
+              </div>
+              <div className={`px-2.5 py-1 rounded-lg text-[10px] font-bold ${spot.risk === 'High' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'}`}>
+                {spot.risk === 'High' ? 'ӨНДӨР' : 'ДУНД'}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Recommendations */}
-        <div className="mt-5 bg-gradient-to-br from-[#EFF6FF] to-[#DBEAFE] rounded-[24px] p-6 border border-[#93C5FD] shadow-[0_4px_20px_rgba(37,99,235,0.1)]">
-          <h3 className="text-[18px] font-bold text-[#1E3A8A] mb-4">
-            Зөвлөмж
+        {/* Advice Section - Muted Indigo */}
+        <div className="bg-[#E0E7FF]/60 rounded-[28px] p-6 border border-[#C7D2FE]/50 relative overflow-hidden">
+          <h3 className="text-[16px] font-bold text-[#312E81] mb-3 flex items-center gap-2">
+            <Info size={18} /> Зөвлөмж
           </h3>
           <ul className="space-y-3">
-            <li className="flex gap-3 text-[#1E3A8A] text-[14px]">
-              <span className="text-[#2563EB] flex-shrink-0 font-bold text-[16px]">•</span>
-              <span className="leading-relaxed">Оргил цагуудад хяналтыг нэмэгдүүлэх</span>
+            <li className="flex gap-3 text-[13px] text-[#312E81]/80 font-medium leading-snug">
+              <div className="w-1.5 h-1.5 bg-[#4338CA] rounded-full mt-1.5 flex-shrink-0"></div>
+              Оргил цагуудад хяналтын ажилчдыг нэмэгдүүлэх
             </li>
-            <li className="flex gap-3 text-[#1E3A8A] text-[14px]">
-              <span className="text-[#2563EB] flex-shrink-0 font-bold text-[16px]">•</span>
-              <span className="leading-relaxed">Цайны газарт нэмэлт камер суурилуулах</span>
-            </li>
-            <li className="flex gap-3 text-[#1E3A8A] text-[14px]">
-              <span className="text-[#2563EB] flex-shrink-0 font-bold text-[16px]">•</span>
-              <span className="leading-relaxed">Завсарлагааны үед зөвлөх багш ажиллуулах</span>
+            <li className="flex gap-3 text-[13px] text-[#312E81]/80 font-medium leading-snug">
+              <div className="w-1.5 h-1.5 bg-[#4338CA] rounded-full mt-1.5 flex-shrink-0"></div>
+              Цайны газарт нэмэлт хяналтын систем суурилуулах
             </li>
           </ul>
         </div>
       </div>
 
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E2E8F0] shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
-        <div className="max-w-md mx-auto px-6 py-4">
-          <div className="flex items-center justify-around">
-            <button
-              onClick={() => navigate('/')}
-              className="flex flex-col items-center gap-1 text-[#64748B] hover:text-[#2563EB] transition-colors"
-            >
-              <div className="hover:bg-[#F1F5F9] rounded-xl p-2 transition-colors">
-                <Home className="w-6 h-6" />
-              </div>
-              <span className="text-[11px] font-semibold">Нүүр</span>
-            </button>
-
-            <button
-              onClick={() => navigate('/report')}
-              className="flex flex-col items-center gap-1 text-[#64748B] hover:text-[#2563EB] transition-colors"
-            >
-              <div className="hover:bg-[#F1F5F9] rounded-xl p-2 transition-colors">
-                <FileText className="w-6 h-6" />
-              </div>
-              <span className="text-[11px] font-semibold">Мэдэгдэх</span>
-            </button>
-
-            <button className="flex flex-col items-center gap-1 text-[#2563EB]">
-              <div className="bg-[#EFF6FF] rounded-xl p-2">
-                <MapPin className="w-6 h-6" />
-              </div>
-              <span className="text-[11px] font-semibold">Газрын зураг</span>
-            </button>
-
-            <button className="flex flex-col items-center gap-1 text-[#DC2626]">
-              <div className="bg-[#FEE2E2] rounded-xl p-2">
-                <Bell className="w-6 h-6" />
-              </div>
-              <span className="text-[11px] font-semibold">SOS</span>
-            </button>
-          </div>
+      {/* Navigation - Clean Muted Style */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-white/90 backdrop-blur-lg rounded-[30px] shadow-lg px-6 py-3 z-50 border border-slate-100">
+        <div className="flex items-center justify-between">
+          <button onClick={() => navigate('/')} className="p-3 text-slate-400">
+            <HomeIcon size={24} />
+          </button>
+          
+          <button onClick={() => navigate('/report')} className="p-3 text-slate-400">
+            <HeartHandshake size={24} />
+          </button>
+          
+          <button onClick={() => navigate('/heatmap')} className="flex flex-col items-center gap-1 text-[#4338CA]">
+            <div className="bg-[#EEF2FF] p-2.5 rounded-2xl mb-0.5 shadow-sm">
+              <MapPin size={24} strokeWidth={2.5} />
+            </div>
+          </button>
+          
+          <button onClick={handleSOS} className="p-3 text-rose-400 active:scale-90 transition-transform">
+            <Bell size={24} />
+          </button>
         </div>
       </div>
     </div>
