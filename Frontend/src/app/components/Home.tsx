@@ -25,7 +25,7 @@ export default function Home({ onSOSClick }: HomeProps) {
               </div>
               <div>
                 <h1 className="text-white text-[32px] font-bold tracking-tight">SafeSchool</h1>
-                <p className="text-white/80 text-[14px]">Таны аюулгүй орчин</p>
+                <p className="text-white/80 text-[14px]">Таны аюулгүй орчин нь</p>
               </div>
             </div>
           </motion.div>
