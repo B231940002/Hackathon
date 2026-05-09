@@ -9,8 +9,7 @@ const registerStudent = async (req, res) => {
       student_phone_number,
       username,
       password,
-      student_grade,
-      student_group,
+      class_info,
     } = req.body;
 
     if (!school_code || !student_first_name || !student_last_name || !username || !password) {
@@ -43,8 +42,7 @@ const registerStudent = async (req, res) => {
       student_phone_number: student_phone_number || "",
       username,
       password_hash: password,
-      student_grade: student_grade || null,
-      student_group: student_group || "",
+      class_info,
       risk_score: 0,
       is_verified: false,
       verification_status: "pending",

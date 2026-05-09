@@ -1,13 +1,17 @@
 const express = require("express");
-const router = express.Router();
 
 const {
   registerStudent,
+  loginStudent,
   getStudentsBySchool,
   verifyStudent,
-} = require("../controllers/student.controller");
+} = require("../controllers/studentController");
+
+const router = express.Router();
 
 router.post("/register", registerStudent);
+router.post("/login", loginStudent);
+
 router.get("/school/:school_id", getStudentsBySchool);
 router.patch("/:student_id/verify", verifyStudent);
 
