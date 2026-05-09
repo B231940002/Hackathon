@@ -12,7 +12,8 @@ import {
   Heart,
   Wind,
   Star,
-  CheckCircle
+  CheckCircle,
+  BicepsFlexed // Булчингийн icon-ийг энд импортолсон
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -235,7 +236,7 @@ export default function ReportForm() {
               <Home className="w-5 h-5" /> Буцах
             </button>
             <button
-              onClick={() => navigate('/calm')}
+              onClick={() => navigate('/breathe')}
               className="flex-1 bg-[#1E3A8A] text-white py-5 rounded-[28px] font-bold shadow-xl shadow-blue-900/20 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <Wind className="w-5 h-5 text-blue-200" /> Тайвшруулах
@@ -359,8 +360,8 @@ export default function ReportForm() {
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors ${
                       type === 'physical' ? 'bg-orange-500 shadow-md shadow-orange-200' : 'bg-slate-100'
                     }`}>
-                      {/* Zap icon байсныг устгаад 💪 эможигоор сольсон */}
-                      <span className={`text-[24px] ${type === 'physical' ? '' : 'grayscale opacity-60'}`}>💪</span>
+                      {/* BicepsFlexed цэвэрхэн icon ашигласан */}
+                      <BicepsFlexed className={type === 'physical' ? 'text-white' : 'text-slate-400'} size={24} />
                     </div>
                     <h3 className={`font-bold text-[13px] transition-colors ${type === 'physical' ? 'text-orange-700' : 'text-[#312E81]'}`}>Бие махбодын</h3>
                     <p className="text-[#94A3B8] text-[11px] mt-1">Түлхэх, цохих, гэмтээх зэрэг</p>
