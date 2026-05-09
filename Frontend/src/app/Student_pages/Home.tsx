@@ -214,9 +214,6 @@ export default function Home({ onSOSClick }: HomeProps) {
           <button onClick={() => navigate('/heatmap')} className="flex flex-col items-center gap-1.5 text-slate-400 py-1 font-bold">
             <MessageCircle size={26} strokeWidth={2} /><span className="text-[11px]">Газрын зураг</span>
           </button>
-          <button onClick={onSOSClick} className="flex flex-col items-center gap-1.5 text-slate-400 py-1 font-bold">
-            <Bell size={26} strokeWidth={2} /><span className="text-[11px]">SOS</span>
-          </button>
         </div>
       </div>
     </div>
