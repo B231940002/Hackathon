@@ -6,8 +6,13 @@ const { db } = require("./src/config/Firebase");
 
 const app = express();
 
+const studentRoutes = require("./src/routes/studentRoutes");
+
 app.use(cors());
 app.use(express.json());
+
+
+app.use("/api/students", studentRoutes);
 
 app.get("/", (req, res) => {
   res.json({
