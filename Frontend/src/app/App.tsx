@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route } from 'react-router';
 
 import Home from './Student_pages/Home';
 import ReportForm from './Student_pages/ReportForm1';
-import SafetyHeatmap from './Student_pages/SafetyHeatmap';
 import SOSInfo from './Student_pages/SOSInfo';
 import Login from './Student_pages/Login';
 import Register from './Student_pages/Register';

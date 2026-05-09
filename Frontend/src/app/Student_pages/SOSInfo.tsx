@@ -1,11 +1,10 @@
 import { useNavigate } from 'react-router';
 import {
   ArrowLeft,
-  PhoneCall,
+  ShieldAlert,
+  MapPinned,
+  MessageCircleMore,
   ShieldCheck,
-  Bell,
-  Users,
-  AlertTriangle,
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -17,105 +16,176 @@ export default function SOSInfo({ onSOSClick }: SOSInfoProps) {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#E9DDFF] via-[#F8F5FF] to-white px-4 py-6 pb-28">
-      <div className="w-full max-w-md mx-auto bg-white/85 backdrop-blur-xl rounded-[36px] shadow-[0_20px_60px_rgba(124,58,237,0.22)] overflow-hidden border border-white">
-        <div className="px-6 pt-8 pb-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#EEE7FF] via-[#F8F5FF] to-white px-4 py-6 relative overflow-hidden">
+      
+      <div className="absolute -left-32 top-40 w-72 h-72 bg-[#D8B4FE]/20 blur-3xl rounded-full" />
+      <div className="absolute -right-20 bottom-10 w-60 h-60 bg-[#C4B5FD]/20 blur-3xl rounded-full" />
+
+      <div className="relative z-10 w-full max-w-md mx-auto bg-white/90 backdrop-blur-xl rounded-[38px] border border-white shadow-[0_20px_60px_rgba(124,58,237,0.20)] overflow-hidden">
+        
+        <div className="px-6 pt-8 pb-8">
+          
           <button
             onClick={() => navigate(-1)}
-            className="w-11 h-11 rounded-2xl bg-[#F3E8FF] flex items-center justify-center text-[#7C3AED] mb-6"
+            className="text-[#7C3AED] mb-5"
           >
-            <ArrowLeft size={24} />
+            <ArrowLeft size={26} />
           </button>
 
-          <div className="text-center mb-7">
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              className="mx-auto w-24 h-24 rounded-full bg-gradient-to-br from-[#FF3B4F] to-[#EF233C] flex items-center justify-center shadow-[0_14px_35px_rgba(239,35,60,0.35)] border-[8px] border-[#FFE4E8] mb-4"
-            >
-              <PhoneCall className="text-white" size={42} />
-            </motion.div>
-
-            <h1 className="text-[#1E1B4B] text-[26px] font-bold">
-              SOS яаралтай тусламж
+          <div className="text-center mb-8">
+            <h1 className="text-[#1E1B4B] text-[28px] font-bold">
+              SOS хэрхэн ажилладаг вэ?
             </h1>
-            <p className="text-[#64748B] text-[14px] mt-2 leading-relaxed">
-              Аюултай нөхцөлд нэг даралтаар тусламж хүсэлт илгээх систем.
+
+            <p className="text-[#8B8BB8] text-[14px] mt-2">
+              SOS товчийг дарснаар юу болдгийг эндээс харна
             </p>
           </div>
 
+          <div className="bg-[#FFF7ED] border border-[#FED7AA] rounded-[24px] p-4 mb-5">
+            <div className="flex gap-3">
+              
+              <div className="w-12 h-12 rounded-2xl bg-[#A855F7] flex items-center justify-center flex-shrink-0">
+                <ShieldAlert className="text-white" size={24} />
+              </div>
+
+              <div>
+                <h3 className="text-[#312E81] font-bold text-[15px]">
+                  Тоглоомоор дарж болохгүй
+                </h3>
+
+                <p className="text-[#64748B] text-[13px] mt-1 leading-relaxed">
+                  Энэ товч нь зөвхөн яаралтай, аюултай нөхцөлд ашиглах зориулалттай.
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-4">
-            <div className="bg-[#FFF1F3] border border-[#FFCCD4] rounded-[24px] p-5">
+            
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="bg-white border border-[#EFE7FF] rounded-[26px] p-4 shadow-[0_10px_30px_rgba(124,58,237,0.08)]"
+            >
               <div className="flex gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#EF233C] flex items-center justify-center flex-shrink-0">
-                  <Bell className="text-white" size={24} />
+                
+                <div className="w-7 h-7 rounded-full bg-[#7C3AED] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                  1
                 </div>
-                <div>
-                  <h3 className="text-[#EF233C] font-bold text-[16px]">
-                    SOS дарахад юу болох вэ?
-                  </h3>
-                  <p className="text-[#64748B] text-[13px] mt-1 leading-relaxed">
-                    Таны яаралтай тусламжийн хүсэлт системийн админ болон нийгнийн ажилтан рүү шууд илгээгдэнэ.
-                  </p>
-                </div>
-              </div>
-            </div>
 
-            <div className="bg-white rounded-[24px] p-5 shadow-[0_8px_28px_rgba(124,58,237,0.10)] border border-[#F1F5F9]">
-              <div className="flex gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#EDE9FE] flex items-center justify-center flex-shrink-0">
-                  <ShieldCheck className="text-[#7C3AED]" size={26} />
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#FF4D5E] to-[#EF233C] shadow-[0_10px_25px_rgba(239,35,60,0.35)] flex items-center justify-center text-white font-bold text-[20px] flex-shrink-0 border-[5px] border-[#FFE5E8]">
+                  SOS
                 </div>
+
                 <div>
                   <h3 className="text-[#312E81] font-bold text-[16px]">
-                    Нууцлал хамгаалагдана
+                    SOS товчийг 3 секунд дарна
                   </h3>
+
                   <p className="text-[#64748B] text-[13px] mt-1 leading-relaxed">
-                    Таны мэдээлэл зөвхөн тусламж үзүүлэх зорилгоор ашиглагдана.
+                    Товчийг 3 секунд дарж идэвхжүүлнэ.
                   </p>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="bg-white rounded-[24px] p-5 shadow-[0_8px_28px_rgba(124,58,237,0.10)] border border-[#F1F5F9]">
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="bg-white border border-[#EFE7FF] rounded-[26px] p-4 shadow-[0_10px_30px_rgba(124,58,237,0.08)]"
+            >
               <div className="flex gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#EDE9FE] flex items-center justify-center flex-shrink-0">
-                  <Users className="text-[#7C3AED]" size={26} />
+                
+                <div className="w-7 h-7 rounded-full bg-[#7C3AED] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                  2
                 </div>
+
+                <div className="w-16 h-16 rounded-[20px] bg-[#F3E8FF] flex items-center justify-center flex-shrink-0">
+                  <MapPinned className="text-[#7C3AED]" size={34} />
+                </div>
+
                 <div>
-                  <h3 className="text-[#312E81] font-bold text-[16px]">
-                    Хэнд очих вэ?
+                  <h3 className="text-[#312E81] font-bold text-[16px] leading-snug">
+                    Таны байршил, нэр, анги, цагийн мэдээлэл сургуулийн админ / нийгмийн ажилтанд илгээгдэнэ
                   </h3>
+
                   <p className="text-[#64748B] text-[13px] mt-1 leading-relaxed">
-                    Системийн админ болон нийгмийн ажилтанд мэдэгдэнэ.
+                    Мэдээлэл автоматаар илгээгдэж, тусламжийн баг очно.
                   </p>
                 </div>
               </div>
+            </motion.div>
+
+            <motion.div
+              whileHover={{ y: -2 }}
+              className="bg-white border border-[#EFE7FF] rounded-[26px] p-4 shadow-[0_10px_30px_rgba(124,58,237,0.08)]"
+            >
+              <div className="flex gap-4">
+                
+                <div className="w-7 h-7 rounded-full bg-[#7C3AED] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                  3
+                </div>
+
+                <div className="w-16 h-16 rounded-[20px] bg-[#F3E8FF] flex items-center justify-center flex-shrink-0">
+                  <MessageCircleMore className="text-[#7C3AED]" size={34} />
+                </div>
+
+                <div>
+                  <h3 className="text-[#312E81] font-bold text-[16px] leading-snug">
+                    Сургууь тусламжийн арга хэмжээ авч, шаардлагатай бол тантай холбогдоно
+                  </h3>
+
+                  <p className="text-[#64748B] text-[13px] mt-1 leading-relaxed">
+                    Админ / нийгмийн ажилтан тантай холбогдож, тусламж үзүүлнэ.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          <div className="mt-6 bg-gradient-to-r from-[#F3E8FF] to-[#FAF5FF] border border-[#E9D5FF] rounded-[26px] p-5 relative overflow-hidden">
+            
+            <div className="absolute right-3 bottom-0 text-[70px] opacity-10">
+              👻
             </div>
 
-            <div className="bg-[#FEF3C7] border border-[#FDE68A] rounded-[24px] p-5">
-              <div className="flex gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#F59E0B] flex items-center justify-center flex-shrink-0">
-                  <AlertTriangle className="text-white" size={26} />
-                </div>
-                <div>
-                  <h3 className="text-[#92400E] font-bold text-[16px]">
-                    Анхааруулга
-                  </h3>
-                  <p className="text-[#92400E] text-[13px] mt-1 leading-relaxed">
-                    SOS товчийг зөвхөн бодит аюултай үед ашиглана.
-                  </p>
+            <div className="flex gap-3 items-start">
+              
+              <div className="w-11 h-11 rounded-2xl bg-[#7C3AED] flex items-center justify-center flex-shrink-0">
+                <ShieldCheck className="text-white" size={22} />
+              </div>
+
+              <div>
+                <h3 className="text-[#7C3AED] font-bold text-[15px]">
+                  Таны аюулгүй байдал бидний нэн тэргүүнд
+                </h3>
+
+                <div className="mt-3 space-y-2">
+                  
+                  <div className="flex items-center gap-2 text-[#64748B] text-[13px]">
+                    <div className="w-2 h-2 rounded-full bg-[#7C3AED]" />
+                    Зөвхөн яаралтай үед ашиглана
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[#64748B] text-[13px]">
+                    <div className="w-2 h-2 rounded-full bg-[#7C3AED]" />
+                    Таны мэдээлэл зөвхөн сургуулийн админ, нийгмийн ажилтанд очно
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[#64748B] text-[13px]">
+                    <div className="w-2 h-2 rounded-full bg-[#7C3AED]" />
+                    Таны аюулгүй байдлыг нэн тэргүүнд хамгаална
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <motion.button
+            whileTap={{ scale: 0.97 }}
             onClick={onSOSClick}
-            whileTap={{ scale: 0.96 }}
-            className="mt-7 w-full bg-gradient-to-br from-[#FF3B4F] to-[#EF233C] text-white rounded-[24px] py-5 font-bold text-[18px] shadow-[0_14px_35px_rgba(239,35,60,0.35)]"
+            className="mt-7 w-full bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white rounded-[22px] py-4 font-bold text-[17px] shadow-[0_12px_30px_rgba(124,58,237,0.30)]"
           >
-            SOS илгээх
+            Ойлголоо
           </motion.button>
         </div>
       </div>

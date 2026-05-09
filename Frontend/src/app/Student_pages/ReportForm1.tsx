@@ -483,7 +483,7 @@ export default function ReportForm() {
                       }} 
                     />
                     <Image className="text-[#7C3AED]" size={32} />
-                    <span className="text-[#312E81] text-[14px] font-bold">Зураг / Видео</span>
+                    <span className="text-[#312E81] text-[14px] font-bold">Зураг</span>
                     <span className={`text-[12px] ${imageFile ? 'text-emerald-500 font-bold' : 'text-[#7C3AED]'}`}>
                       {imageFile ? '✔ Сонгосон' : 'Файл оруулах'}
                     </span>
