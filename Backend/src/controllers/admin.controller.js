@@ -1,63 +1,114 @@
 const { db } = require("../config/firebase");
 
-const createAdmin = async (req, res) => {
+// LOGIN ADMIN
+const loginAdmin = async (req, res) => {
   try {
-    const {
-      school_id,
-      admin_name,
-      admin_email,
-      password,
-      role,
-    } = req.body;
+    const { username, admin_email, password } = req.body;
 
-    if (!school_id || !admin_name || !admin_email || !password) {
+    const loginIdentifier = username || admin_email;
+
+    if (!loginIdentifier || !password) {
       return res.status(400).json({
-        message: "school_id, admin_name, admin_email, password шаардлагатай.",
+        success: false,
+        message: "Admin email болон нууц үг шаардлагатай.",
       });
     }
 
-    const adminRef = db.collection("admins").doc();
+    const normalizedIdentifier = loginIdentifier.trim().toLowerCase();
 
-    const adminData = {
-      admin_id: adminRef.id,
-      school_id,
-      admin_name,
-      admin_email,
-      password_hash: password,
-      role: role || "school_admin",
-      created_at: new Date(),
-    };
+    let snapshot = await db
+      .collection("admins")
+      .where("username", "==", normalizedIdentifier)
+      .limit(1)
+      .get();
 
-    await adminRef.set(adminData);
+    if (snapshot.empty) {
+      snapshot = await db
+        .collection("admins")
+        .where("admin_email", "==", normalizedIdentifier)
+        .limit(1)
+        .get();
+    }
 
-    res.status(201).json({
-      message: "Admin амжилттай үүслээ.",
-      data: adminData,
+    if (snapshot.empty) {
+      return res.status(401).json({
+        success: false,
+        message: "Admin email эсвэл нууц үг буруу байна.",
+      });
+    }
+
+    const adminDoc = snapshot.docs[0];
+    const adminData = adminDoc.data();
+
+    if (!adminData.password_hash) {
+      return res.status(400).json({
+        success: false,
+        message: "Энэ admin дээр password_hash field байхгүй байна.",
+      });
+    }
+
+    if (adminData.password_hash !== password) {
+      return res.status(401).json({
+        success: false,
+        message: "Admin email эсвэл нууц үг буруу байна.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Admin амжилттай нэвтэрлээ.",
+      data: {
+        admin_id: adminData.admin_id || adminDoc.id,
+        school_id: adminData.school_id || "",
+        admin_name: adminData.admin_name || "",
+        admin_email: adminData.admin_email || normalizedIdentifier,
+        username: adminData.username || adminData.admin_email || normalizedIdentifier,
+        role: adminData.role || "school_admin",
+      },
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Admin үүсгэхэд алдаа гарлаа.",
+    console.error("LOGIN ADMIN ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Admin нэвтрэхэд алдаа гарлаа.",
       error: error.message,
     });
   }
 };
 
+// GET ADMINS BY SCHOOL
 const getAdminsBySchool = async (req, res) => {
   try {
     const { school_id } = req.params;
+
+    if (!school_id) {
+      return res.status(400).json({
+        success: false,
+        message: "school_id шаардлагатай.",
+      });
+    }
 
     const snapshot = await db
       .collection("admins")
       .where("school_id", "==", school_id)
       .get();
 
-    const admins = snapshot.docs.map((doc) => doc.data());
+    const admins = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-    res.status(200).json({
+    return res.status(200).json({
+      success: true,
+      count: admins.length,
       data: admins,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("GET ADMINS BY SCHOOL ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
       message: "Admin жагсаалт авахад алдаа гарлаа.",
       error: error.message,
     });
@@ -65,6 +116,6 @@ const getAdminsBySchool = async (req, res) => {
 };
 
 module.exports = {
-  createAdmin,
+  loginAdmin,
   getAdminsBySchool,
 };

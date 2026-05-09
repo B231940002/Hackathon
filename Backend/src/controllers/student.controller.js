@@ -147,14 +147,17 @@ const loginStudent = async (req, res) => {
       });
     }
 
-    if (student.verification_status !== "approved") {
+    const verificationStatus = student.verification_status || "pending";
+    const isVerified = student.is_verified === true;
+
+    if (verificationStatus !== "approved" || !isVerified) {
       return res.status(403).json({
         success: false,
         message: "Таны бүртгэлийг админ хараахан баталгаажуулаагүй байна.",
         data: {
           student_id: student.student_id || studentDoc.id,
-          verification_status: student.verification_status,
-          is_verified: student.is_verified,
+          verification_status: verificationStatus,
+          is_verified: isVerified,
         },
       });
     }
@@ -164,17 +167,19 @@ const loginStudent = async (req, res) => {
       message: "Амжилттай нэвтэрлээ.",
       data: {
         student_id: student.student_id || studentDoc.id,
-        school_id: student.school_id,
-        student_first_name: student.student_first_name,
-        student_last_name: student.student_last_name,
-        student_phone_number: student.student_phone_number,
+        school_id: student.school_id || "",
+        student_first_name: student.student_first_name || "",
+        student_last_name: student.student_last_name || "",
+        student_phone_number: student.student_phone_number || "",
         username: student.username,
-        class_info: student.class_info,
-        is_verified: student.is_verified,
-        verification_status: student.verification_status,
+        class_info: student.class_info || "",
+        is_verified: isVerified,
+        verification_status: verificationStatus,
       },
     });
   } catch (error) {
+    console.error("LOGIN STUDENT ERROR:", error);
+
     return res.status(500).json({
       success: false,
       message: "Нэвтрэхэд алдаа гарлаа.",
@@ -269,10 +274,39 @@ const verifyStudent = async (req, res) => {
     });
   }
 };
+// GET PENDING STUDENT REQUESTS
+const getPendingStudents = async (req, res) => {
+  try {
+    const snapshot = await db
+      .collection("students")
+      .where("verification_status", "==", "pending")
+      .get();
+
+    const students = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return res.status(200).json({
+      success: true,
+      count: students.length,
+      data: students,
+    });
+  } catch (error) {
+    console.error("GET PENDING STUDENTS ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Хүлээгдэж буй сурагчдын мэдээлэл авахад алдаа гарлаа.",
+      error: error.message,
+    });
+  }
+};
 
 module.exports = {
   registerStudent,
   loginStudent,
   getStudentsBySchool,
+  getPendingStudents,
   verifyStudent,
 };
