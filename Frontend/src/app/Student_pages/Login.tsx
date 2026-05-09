@@ -14,13 +14,12 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  // Хэрвээ өмнө нь login хийсэн бол дахин login page дээр үлдээхгүй
   useEffect(() => {
     const savedUser = localStorage.getItem('student_user');
     const isLoggedIn = localStorage.getItem('student_is_logged_in');
 
     if (savedUser && isLoggedIn === 'true') {
-      navigate('/');
+      navigate('/home');
     }
   }, [navigate]);
 
@@ -67,7 +66,7 @@ export default function Login() {
       localStorage.setItem('student_user', JSON.stringify(data.data));
       localStorage.setItem('student_is_logged_in', 'true');
 
-      navigate('/');
+      navigate('/home');
     } catch (error) {
       console.error('LOGIN ERROR:', error);
       setMessage('Backend сервертэй холбогдож чадсангүй.');
@@ -88,14 +87,14 @@ export default function Login() {
             </div>
 
             <h1 className="text-[#7C3AED] text-[26px] font-bold">
-              SafeSchool
+              SafeSchool AI
             </h1>
             <p className="text-[#94A3B8] text-[14px] mt-2">
               Аюулгүй орчиндоо тавтай морил
             </p>
           </div>
 
-          <h2 className="text-[#1E1B4B] text-[34px] font-bold mb-5 text-center">
+          <h2 className="text-[#1E1B4B] text-[24px] font-bold mb-5">
             Нэвтрэх
           </h2>
 
