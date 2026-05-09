@@ -73,7 +73,7 @@ export default function SOSConfirmModal({ onClose }: SOSConfirmModalProps) {
                   Яаралтай дуудлага
                 </h2>
                 <p className="text-[#64748B] text-[15px] leading-relaxed">
-                  Та яг одоо тусламж хэрэгтэй байна уу? Багш нар таны байршилд яаралтай ирэх болно.
+                  Та яг одоо тусламж хэрэгтэй байна уу? Нийгмийн ажилтайн таны байршилд яаралтай ирэх болно.
                 </p>
               </div>
 
@@ -83,7 +83,7 @@ export default function SOSConfirmModal({ onClose }: SOSConfirmModalProps) {
                   <div className="flex items-start gap-3">
                     <AlertTriangle className="w-5 h-5 text-[#F59E0B] flex-shrink-0 mt-0.5" />
                     <p className="text-[#92400E] text-[13px] leading-relaxed font-medium">
-                      Зөвхөн яаралтай тохиолдолд л энэ товчийг дарна уу
+                      Зөвхөн яаралтай тохиолдолд л энэ товчийг дарна уу!
                     </p>
                   </div>
                 </div>
@@ -93,7 +93,7 @@ export default function SOSConfirmModal({ onClose }: SOSConfirmModalProps) {
                     <MapPin className="w-5 h-5 text-[#16A34A] flex-shrink-0 mt-0.5" />
                     <div>
                       <div className="text-[#166534] font-bold text-[14px] mb-1">Таны байршил илгээгдэнэ</div>
-                      <div className="text-[#166534] text-[13px]">Гэхдээ таны нэр нууц хэвээр үлдэнэ</div>
+                      <div className="text-[#166534] text-[13px]">Гэхдээ таны нэр нууц хэвээр үлдэнэ.</div>
                     </div>
                   </div>
                 </div>

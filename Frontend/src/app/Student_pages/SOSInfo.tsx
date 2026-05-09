@@ -55,7 +55,7 @@ export default function SOSInfo({ onSOSClick }: SOSInfoProps) {
                     SOS дарахад юу болох вэ?
                   </h3>
                   <p className="text-[#64748B] text-[13px] mt-1 leading-relaxed">
-                    Таны яаралтай тусламжийн хүсэлт багш, ажилтан эсвэл админ хэсэг рүү шууд илгээгдэнэ.
+                    Таны яаралтай тусламжийн хүсэлт системийн админ болон нийгнийн ажилтан рүү шууд илгээгдэнэ.
                   </p>
                 </div>
               </div>
@@ -87,7 +87,7 @@ export default function SOSInfo({ onSOSClick }: SOSInfoProps) {
                     Хэнд очих вэ?
                   </h3>
                   <p className="text-[#64748B] text-[13px] mt-1 leading-relaxed">
-                    Сургуулийн багш, нийгмийн ажилтан болон хариуцсан ажилтанд мэдэгдэнэ.
+                    Системийн админ болон нийгмийн ажилтанд мэдэгдэнэ.
                   </p>
                 </div>
               </div>

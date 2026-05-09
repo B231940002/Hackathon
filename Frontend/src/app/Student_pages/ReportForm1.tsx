@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   Lock,
   Image,
-  Mic,
   Send,
   ShieldCheck,
   MessageCircle,
@@ -13,7 +12,7 @@ import {
   Wind,
   Star,
   CheckCircle,
-  BicepsFlexed // Булчингийн icon-ийг энд импортолсон
+  BicepsFlexed
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -63,7 +62,6 @@ const KawaiiBlob = ({
         fill={shadowColor}
       />
       
-      {/* Нүүрний хувирлууд */}
       {emotion === "happy" ? (
         <g transform="translate(0, -2)">
           <path d="M68,100 C73,108 83,108 88,100" fill="none" stroke="#0F172A" strokeWidth="5" strokeLinecap="round" />
@@ -74,14 +72,10 @@ const KawaiiBlob = ({
         </g>
       ) : (
         <g transform="translate(0, -2)">
-          {/* Гунигтай, анисан нүд */}
           <path d="M68,105 C73,100 83,100 88,105" fill="none" stroke="#0F172A" strokeWidth="5" strokeLinecap="round" />
           <path d="M112,105 C117,100 127,100 132,105" fill="none" stroke="#0F172A" strokeWidth="5" strokeLinecap="round" />
-          
-          {/* Урсаж буй нулимснууд */}
           <motion.ellipse cx="78" cy="112" rx="3.5" ry="5" fill="#38BDF8" opacity="0.8" animate={{ y: [0, 12], opacity: [0.8, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeIn" }} />
           <motion.ellipse cx="122" cy="112" rx="3.5" ry="5" fill="#38BDF8" opacity="0.8" animate={{ y: [0, 12], opacity: [0.8, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeIn", delay: 0.7 }} />
-          
           <ellipse cx="58" cy="110" rx="10" ry="5.5" fill="#FF8A8A" opacity="0.3" filter="blur(1px)" />
           <ellipse cx="142" cy="110" rx="10" ry="5.5" fill="#FF8A8A" opacity="0.3" filter="blur(1px)" />
           <path d="M93,118 C97,113 103,113 107,118" fill="none" stroke="#0F172A" strokeWidth="4.5" strokeLinecap="round" />
@@ -101,7 +95,6 @@ const KawaiiBlob = ({
   </div>
 );
 
-// Урмын үгс болон Дүрүүд
 const encouragingSteps = [
   {
     title: 'Чи ганцаараа биш шүү.',
@@ -150,10 +143,7 @@ export default function ReportForm() {
   const [description, setDescription] = useState('');
   const [extra, setExtra] = useState('');
 
-  // Файл хадгалах state-үүд
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [voiceFile, setVoiceFile] = useState<File | null>(null);
-
   const [randomIndex, setRandomIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -360,7 +350,6 @@ export default function ReportForm() {
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors ${
                       type === 'physical' ? 'bg-orange-500 shadow-md shadow-orange-200' : 'bg-slate-100'
                     }`}>
-                      {/* BicepsFlexed цэвэрхэн icon ашигласан */}
                       <BicepsFlexed className={type === 'physical' ? 'text-white' : 'text-slate-400'} size={24} />
                     </div>
                     <h3 className={`font-bold text-[13px] transition-colors ${type === 'physical' ? 'text-orange-700' : 'text-[#312E81]'}`}>Бие махбодын</h3>
@@ -435,29 +424,30 @@ export default function ReportForm() {
 
                   <div>
                     <label className="text-[#312E81] font-bold text-[14px] mb-2 block">Анги / бүлэг</label>
-                    <div>
-                      <input
-                        value={classGroup}
-                        onChange={(e) => setClassGroup(e.target.value)}
-                        placeholder="Жишээ: 8а анги, 9б бүлэг"
-                        className="w-full rounded-[16px] border border-[#EDE9FE] px-4 py-4 outline-none text-[13px]"
-                      />
-                    </div>
+                    <input
+                      value={classGroup}
+                      onChange={(e) => setClassGroup(e.target.value)}
+                      placeholder="Жишээ: 8а анги, 9б бүлэг"
+                      className="w-full rounded-[16px] border border-[#EDE9FE] px-4 py-4 outline-none text-[13px]"
+                    />
                   </div>
                 </motion.div>
               )}
 
-              <div>
-                <label className="text-[#312E81] font-bold text-[14px] mb-2 block">Дүрслэн бичих</label>
-                <textarea
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  maxLength={1000}
-                  placeholder="Юу болсон бэ? Хэн оролцсон бэ? Хэзээ болсон бэ? Дэлгэрэнгүй бичнэ үү."
-                  className="w-full h-32 rounded-[16px] border border-[#EDE9FE] px-4 py-4 outline-none text-[13px] resize-none"
-                />
-                <p className="text-right text-[#94A3B8] text-[11px]">{description.length}/1000</p>
-              </div>
+              {/* Хэрэв "Тийм" гэж сонгосон бол "Дүрслэн бичих" хэсэг харагдахгүй */}
+              {known !== 'yes' && (
+                <div>
+                  <label className="text-[#312E81] font-bold text-[14px] mb-2 block">Дүрслэн бичих</label>
+                  <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    maxLength={1000}
+                    placeholder="Юу болсон бэ? Хэн оролцсон бэ? Хэзээ болсон бэ? Дэлгэрэнгүй бичнэ үү."
+                    className="w-full h-32 rounded-[16px] border border-[#EDE9FE] px-4 py-4 outline-none text-[13px] resize-none"
+                  />
+                  <p className="text-right text-[#94A3B8] text-[11px]">{description.length}/1000</p>
+                </div>
+              )}
 
               <div className="bg-[#F3E8FF] rounded-[18px] px-4 py-3 flex gap-3 items-center">
                 <Lock className="text-[#7C3AED]" size={18} />
@@ -480,8 +470,8 @@ export default function ReportForm() {
                   Нотолгоо хавсаргах<span className="text-[#94A3B8] font-medium"> /заавал биш/</span>
                 </h2>
                 
-                <div className="grid grid-cols-2 gap-3">
-                  <label className="rounded-[18px] border border-[#EDE9FE] bg-white p-4 flex flex-col items-center gap-2 shadow-[0_8px_24px_rgba(124,58,237,0.08)] hover:border-purple-200 transition-colors cursor-pointer">
+                <div className="grid grid-cols-1 gap-3">
+                  <label className="rounded-[18px] border border-[#EDE9FE] bg-white p-6 flex flex-col items-center gap-2 shadow-[0_8px_24px_rgba(124,58,237,0.08)] hover:border-purple-200 transition-colors cursor-pointer">
                     <input 
                       type="file" 
                       accept="image/*,video/*" 
@@ -492,28 +482,10 @@ export default function ReportForm() {
                         }
                       }} 
                     />
-                    <Image className="text-[#7C3AED]" size={28} />
-                    <span className="text-[#312E81] text-[12px] font-bold">Зураг</span>
-                    <span className={`text-[11px] ${imageFile ? 'text-emerald-500 font-bold' : 'text-[#7C3AED]'}`}>
-                      {imageFile ? '✔ Сонгосон' : 'Оруулах'}
-                    </span>
-                  </label>
-                  
-                  <label className="rounded-[18px] border border-[#EDE9FE] bg-white p-4 flex flex-col items-center gap-2 shadow-[0_8px_24px_rgba(124,58,237,0.08)] hover:border-cyan-200 transition-colors cursor-pointer">
-                    <input 
-                      type="file" 
-                      accept="audio/*" 
-                      className="hidden" 
-                      onChange={(e) => {
-                        if (e.target.files && e.target.files.length > 0) {
-                          setVoiceFile(e.target.files[0]);
-                        }
-                      }} 
-                    />
-                    <Mic className="text-[#06B6D4]" size={28} />
-                    <span className="text-[#312E81] text-[12px] font-bold">Voice</span>
-                    <span className={`text-[11px] ${voiceFile ? 'text-emerald-500 font-bold' : 'text-[#7C3AED]'}`}>
-                      {voiceFile ? '✔ Сонгосон' : 'Оруулах'}
+                    <Image className="text-[#7C3AED]" size={32} />
+                    <span className="text-[#312E81] text-[14px] font-bold">Зураг / Видео</span>
+                    <span className={`text-[12px] ${imageFile ? 'text-emerald-500 font-bold' : 'text-[#7C3AED]'}`}>
+                      {imageFile ? '✔ Сонгосон' : 'Файл оруулах'}
                     </span>
                   </label>
                 </div>
