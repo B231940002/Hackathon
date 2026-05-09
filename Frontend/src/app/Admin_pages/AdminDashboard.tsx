@@ -6,8 +6,8 @@ import {
   History,
   MapPin,
   School,
-  BarChart3,
   Bell,
+  UserPlus,
 } from 'lucide-react';
 
 export default function AdminDashboard() {
@@ -130,11 +130,10 @@ function AdminSidebar({ active }: { active: string }) {
         <SidebarButton active={active === 'dashboard'} icon={<Home />} label="Хяналт" onClick={() => navigate('/admin')} />
         <SidebarButton active={active === 'complaints'} icon={<ClipboardList />} label="Гомдлууд" onClick={() => navigate('/admin/complaints')} />
         <SidebarButton active={active === 'history'} icon={<History />} label="Түүх" onClick={() => navigate('/admin/history')} />
+        <SidebarButton active={active === 'requests'} icon={<UserPlus />} label="Хүсэлт" onClick={() => navigate('/admin/user-requests')} />
         <SidebarButton active={active === 'map'} icon={<MapPin />} label="SOS зураг" onClick={() => navigate('/admin/sos-map')} />
-        <SidebarButton icon={<School />} label="Сургууль" onClick={() => navigate('/admin/school')}
-/>
+        <SidebarButton active={active === 'school'} icon={<School />} label="Сургууль" onClick={() => navigate('/admin/school')} />
         <SidebarButton icon={<Bell />} label="Мэдэгдэл" />
-        
 
         <div className="mt-auto text-center">
           <div className="text-[38px]">👻</div>
@@ -144,10 +143,11 @@ function AdminSidebar({ active }: { active: string }) {
       </aside>
 
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-[#EDE9FE] px-2 py-2 shadow-[0_-10px_30px_rgba(124,58,237,0.08)]">
-        <div className="grid grid-cols-4 gap-1">
+        <div className="grid grid-cols-5 gap-1">
           <MobileNavButton active={active === 'dashboard'} icon={<Home size={20} />} label="Хяналт" onClick={() => navigate('/admin')} />
           <MobileNavButton active={active === 'complaints'} icon={<ClipboardList size={20} />} label="Гомдол" onClick={() => navigate('/admin/complaints')} />
           <MobileNavButton active={active === 'history'} icon={<History size={20} />} label="Түүх" onClick={() => navigate('/admin/history')} />
+          <MobileNavButton active={active === 'requests'} icon={<UserPlus size={20} />} label="Хүсэлт" onClick={() => navigate('/admin/user-requests')} />
           <MobileNavButton active={active === 'map'} icon={<MapPin size={20} />} label="SOS" onClick={() => navigate('/admin/sos-map')} />
         </div>
       </div>
@@ -173,7 +173,7 @@ function MobileNavButton({ icon, label, active, onClick }: any) {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center justify-center gap-1 rounded-2xl py-2 text-[11px] font-bold ${
+      className={`flex flex-col items-center justify-center gap-1 rounded-2xl py-2 text-[10px] font-bold ${
         active ? 'text-[#7C3AED] bg-[#F3E8FF]' : 'text-[#94A3B8]'
       }`}
     >
