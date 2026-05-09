@@ -1,27 +1,10 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import {
-  ShieldCheck,
-  User,
-  Lock,
-  ArrowRight,
-  GraduationCap,
-  Shield,
-} from 'lucide-react';
+import { ShieldCheck, User, Lock, ArrowRight } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 
 export default function Login() {
   const navigate = useNavigate();
-  const [role, setRole] = useState<'student' | 'admin'>('student');
-
-  const handleLogin = () => {
-    if (role === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/home');
-    }
-  };
 
   const [form, setForm] = useState({
     username: '',
@@ -116,52 +99,6 @@ export default function Login() {
             Нэвтрэх
           </h2>
 
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <button
-              onClick={() => setRole('student')}
-              className={`rounded-[20px] border-2 p-4 text-center transition ${
-                role === 'student'
-                  ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-[0_8px_22px_rgba(124,58,237,0.18)]'
-                  : 'border-[#EDE9FE] bg-white'
-              }`}
-            >
-              <div
-                className={`mx-auto w-12 h-12 rounded-2xl flex items-center justify-center mb-2 ${
-                  role === 'student'
-                    ? 'bg-[#7C3AED] text-white'
-                    : 'bg-[#F3E8FF] text-[#8B5CF6]'
-                }`}
-              >
-                <GraduationCap size={26} />
-              </div>
-              <p className="text-[#312E81] font-bold text-[14px]">
-                Сурагч
-              </p>
-            </button>
-
-            <button
-              onClick={() => setRole('admin')}
-              className={`rounded-[20px] border-2 p-4 text-center transition ${
-                role === 'admin'
-                  ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-[0_8px_22px_rgba(124,58,237,0.18)]'
-                  : 'border-[#EDE9FE] bg-white'
-              }`}
-            >
-              <div
-                className={`mx-auto w-12 h-12 rounded-2xl flex items-center justify-center mb-2 ${
-                  role === 'admin'
-                    ? 'bg-[#7C3AED] text-white'
-                    : 'bg-[#F3E8FF] text-[#8B5CF6]'
-                }`}
-              >
-                <Shield size={26} />
-              </div>
-              <p className="text-[#312E81] font-bold text-[14px]">
-                Админ
-              </p>
-            </button>
-          </div>
-
           <div className="space-y-4">
             <label className="block">
               <span className="text-[#312E81] font-bold text-[13px]">
@@ -175,11 +112,7 @@ export default function Login() {
                   value={form.username}
                   onChange={handleChange}
                   type="text"
-                  placeholder={
-                    role === 'admin'
-                      ? 'Жишээ: admin'
-                      : 'Жишээ: Бат'
-                  }
+                  placeholder="Жишээ: bat_10a"
                   className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]"
                 />
               </div>
@@ -213,18 +146,11 @@ export default function Login() {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={handleLogin}
-<<<<<<< HEAD:Frontend/src/app/pages/Login.tsx
             disabled={loading}
             className="mt-6 w-full bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white rounded-[22px] py-4 font-bold shadow-[0_12px_28px_rgba(124,58,237,0.28)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? 'Нэвтэрч байна...' : 'Нэвтрэх'}
             {!loading && <ArrowRight size={20} />}
-=======
-            className="mt-6 w-full bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white rounded-[22px] py-4 font-bold shadow-[0_12px_28px_rgba(124,58,237,0.28)] flex items-center justify-center gap-2"
-          >
-            {role === 'admin' ? 'Админаар нэвтрэх' : 'Сурагчаар нэвтрэх'}
-            <ArrowRight size={20} />
->>>>>>> feature/frontend-ui:Frontend/src/app/Student_pages/Login.tsx
           </motion.button>
 
           <p className="text-center text-[#94A3B8] text-[14px] mt-6">

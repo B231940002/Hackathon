@@ -69,18 +69,6 @@ export default function AdminComplaints() {
             </button>
           ))}
         </div>
-        
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          {['Хохирогч', 'Мэдээлэгч'].map((item) => (
-            <button
-              key={item}
-              className="py-3 rounded-xl text-[12px] font-bold bg-white text-[#312E81] border border-[#EDE9FE]"
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-        
 
         <div className="flex items-center justify-between mb-4">
           <button className="bg-white border border-[#EDE9FE] rounded-xl px-4 py-2 text-[#312E81] font-bold text-[12px]">
