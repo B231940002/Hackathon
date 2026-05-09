@@ -5,7 +5,7 @@ const {
   loginStudent,
   getStudentsBySchool,
   verifyStudent,
-} = require("../controllers/studentController");
+} = require("../controllers/student.controller");
 
 const router = express.Router();
 

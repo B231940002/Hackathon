@@ -9,6 +9,7 @@ const reportRoutes = require("./routes/report.routes");
 const sosRoutes = require("./routes/sos.routes");
 const notificationRoutes = require("./routes/notification.routes");
 
+
 const app = express();
 
 app.use(cors());
@@ -25,7 +26,9 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/sos", sosRoutes);
 app.use("/api/notifications", notificationRoutes);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
+
+app.use("/api/students", studentRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

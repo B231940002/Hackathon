@@ -1,6 +1,5 @@
-// src/config/firebase.js
-
 const admin = require("firebase-admin");
+
 const serviceAccount = require("../../serviceAccountKey.json");
 
 if (!admin.apps.length) {
@@ -11,4 +10,4 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
-module.exports = { db };
+module.exports = { admin, db };
