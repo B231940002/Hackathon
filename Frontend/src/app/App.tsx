@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router';
 import Home from './components/Home';
-import ReportForm from './components/ReportForm';
+import ReportForm from './components/ReportForm1';
 import SafetyHeatmap from './components/SafetyHeatmap';
 import AdminDashboard from './components/AdminDashboard';
 import SOSConfirmModal from './components/SOSConfirmModal';
