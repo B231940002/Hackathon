@@ -1,12 +1,13 @@
 const express = require("express");
-const router = express.Router();
 
 const {
-  createAdmin,
+  loginAdmin,
   getAdminsBySchool,
 } = require("../controllers/admin.controller");
 
-router.post("/", createAdmin);
+const router = express.Router();
+
+router.post("/login", loginAdmin);
 router.get("/school/:school_id", getAdminsBySchool);
 
 module.exports = router;
