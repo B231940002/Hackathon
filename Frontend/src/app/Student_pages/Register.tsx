@@ -1,4 +1,4 @@
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import {
   ShieldCheck,
   User,
@@ -8,10 +8,101 @@ import {
   School,
   Hash,
   Sparkles,
+  Phone,
 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useState } from 'react';
 
 export default function Register() {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    student_first_name: '',
+    student_last_name: '',
+    student_phone_number: '',
+    teacher_name: '',
+    school_code: '',
+    class_info: '',
+    password: '',
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleRegister = async () => {
+    setMessage('');
+    setIsSuccess(false);
+
+    if (
+      !form.student_first_name ||
+      !form.student_last_name ||
+      !form.student_phone_number ||
+      !form.school_code ||
+      !form.class_info ||
+      !form.password
+    ) {
+      setMessage('Шаардлагатай талбаруудыг бүрэн бөглөнө үү.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const payload = {
+        school_code: form.school_code.trim(),
+        student_first_name: form.student_first_name.trim(),
+        student_last_name: form.student_last_name.trim(),
+        student_phone_number: form.student_phone_number.trim(),
+        username: `${form.student_first_name.trim()}_${form.class_info.trim()}`
+          .toLowerCase()
+          .replace(/\s+/g, ''),
+        password: form.password,
+        class_info: form.class_info.trim(),
+        teacher_name: form.teacher_name.trim(),
+      };
+
+      const res = await fetch('http://localhost:5001/api/students/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setMessage(data.message || 'Бүртгэл амжилтгүй боллоо.');
+        return;
+      }
+
+      setIsSuccess(true);
+      setMessage(
+        data.message ||
+        'Бүртгэл амжилттай. Админ баталгаажуулсны дараа нэвтрэх боломжтой.'
+      );
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+    } catch (error) {
+      console.error(error);
+      setMessage('Backend сервертэй холбогдож чадсангүй.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E9DDFF] via-[#F8F5FF] to-white flex items-center justify-center px-4 py-6">
       <div className="w-full max-w-md bg-white/85 backdrop-blur-xl rounded-[36px] shadow-[0_20px_60px_rgba(124,58,237,0.22)] border border-white overflow-hidden">
@@ -52,7 +143,14 @@ export default function Register() {
               </span>
               <div className="mt-2 flex items-center gap-3 bg-[#F8F5FF] border border-[#EDE9FE] rounded-[18px] px-4 py-4">
                 <User className="text-[#8B5CF6]" size={22} />
-                <input type="text" placeholder="Жишээ: Бат" className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]" />
+                <input
+                  name="student_first_name"
+                  value={form.student_first_name}
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="Жишээ: Бат"
+                  className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]"
+                />
               </div>
             </label>
 
@@ -62,7 +160,14 @@ export default function Register() {
               </span>
               <div className="mt-2 flex items-center gap-3 bg-[#F8F5FF] border border-[#EDE9FE] rounded-[18px] px-4 py-4">
                 <Users className="text-[#8B5CF6]" size={22} />
-                <input type="text" placeholder="Жишээ: Болд" className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]" />
+                <input
+                  name="student_last_name"
+                  value={form.student_last_name}
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="Жишээ: Болд"
+                  className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]"
+                />
               </div>
             </label>
 
@@ -72,7 +177,14 @@ export default function Register() {
               </span>
               <div className="mt-2 flex items-center gap-3 bg-[#F8F5FF] border border-[#EDE9FE] rounded-[18px] px-4 py-4">
                 <GraduationCap className="text-[#8B5CF6]" size={22} />
-                <input type="text" placeholder="Жишээ: Нарантуяа" className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]" />
+                <input
+                  name="teacher_name"
+                  value={form.teacher_name}
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="Жишээ: Нарантуяа"
+                  className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]"
+                />
               </div>
             </label>
 
@@ -82,7 +194,14 @@ export default function Register() {
               </span>
               <div className="mt-2 flex items-center gap-3 bg-[#F8F5FF] border border-[#EDE9FE] rounded-[18px] px-4 py-4">
                 <School className="text-[#8B5CF6]" size={22} />
-                <input type="text" placeholder="Жишээ: SCH-001" className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]" />
+                <input
+                  name="school_code"
+                  value={form.school_code}
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="Жишээ: SS-DEMO-2026"
+                  className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]"
+                />
               </div>
             </label>
 
@@ -92,7 +211,30 @@ export default function Register() {
               </span>
               <div className="mt-2 flex items-center gap-3 bg-[#F8F5FF] border border-[#EDE9FE] rounded-[18px] px-4 py-4">
                 <Hash className="text-[#8B5CF6]" size={22} />
-                <input type="text" placeholder="Жишээ: 10А" className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]" />
+                <input
+                  name="class_info"
+                  value={form.class_info}
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="Жишээ: 10А"
+                  className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]"
+                />
+              </div>
+            </label>
+            <label className="block">
+              <span className="text-[#312E81] font-bold text-[13px]">
+                Утасны дугаар
+              </span>
+              <div className="mt-2 flex items-center gap-3 bg-[#F8F5FF] border border-[#EDE9FE] rounded-[18px] px-4 py-4">
+                <Phone className="text-[#8B5CF6]" size={22} />
+                <input
+                  name="student_phone_number"
+                  value={form.student_phone_number}
+                  onChange={handleChange}
+                  type="tel"
+                  placeholder="Жишээ: 99112233"
+                  className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]"
+                />
               </div>
             </label>
 
@@ -102,16 +244,34 @@ export default function Register() {
               </span>
               <div className="mt-2 flex items-center gap-3 bg-[#F8F5FF] border border-[#EDE9FE] rounded-[18px] px-4 py-4">
                 <Lock className="text-[#8B5CF6]" size={22} />
-                <input type="password" placeholder="••••••••" className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]" />
+                <input
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  type="password"
+                  placeholder="••••••••"
+                  className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]"
+                />
               </div>
             </label>
           </div>
 
+          {message && (
+            <p
+              className={`text-center text-[13px] mt-4 font-semibold ${isSuccess ? 'text-green-600' : 'text-red-500'
+                }`}
+            >
+              {message}
+            </p>
+          )}
+
           <motion.button
+            onClick={handleRegister}
+            disabled={loading}
             whileTap={{ scale: 0.96 }}
-            className="mt-6 w-full bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white rounded-[22px] py-4 font-bold shadow-[0_12px_28px_rgba(124,58,237,0.28)]"
+            className="mt-6 w-full bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white rounded-[22px] py-4 font-bold shadow-[0_12px_28px_rgba(124,58,237,0.28)] disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            Бүртгүүлэх
+            {loading ? 'Бүртгэж байна...' : 'Бүртгүүлэх'}
           </motion.button>
 
           <p className="text-center text-[#94A3B8] text-[14px] mt-6">
