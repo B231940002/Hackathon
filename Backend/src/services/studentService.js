@@ -1,4 +1,4 @@
-const { db, admin } = require("../config/Firebase");
+const { db, admin } = require("../config/firebase");
 
 const findSchoolByCode = async (schoolCode) => {
   const snapshot = await db
