@@ -1,19 +1,23 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router';
-import Home from './pages/Home';
-import ReportForm from './pages/ReportForm1';
-import SafetyHeatmap from './pages/SafetyHeatmap';
-import SOSInfo from './pages/SOSInfo';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminComplaints from './pages/AdminComplaints';
-import AdminSOSMap from './pages/AdminSOSMap';
-import AdminComplaintDetail from './pages/AdminComplaintDetail';
-import AdminContactRequest from './pages/AdminContactRequest';
-import AdminComplaintHistory from './pages/AdminComplaintHistory';
-import AdminSchool from './pages/AdminSchool';
 
+import Home from './Student_pages/Home';
+import ReportForm from './Student_pages/ReportForm1';
+import SafetyHeatmap from './Student_pages/SafetyHeatmap';
+import SOSInfo from './Student_pages/SOSInfo';
+import Login from './Student_pages/Login';
+import Register from './Student_pages/Register';
+
+import AdminDashboard from './Admin_pages/AdminDashboard';
+import AdminComplaints from './Admin_pages/AdminComplaints';
+import AdminSOSMap from './Admin_pages/AdminSOSMap';
+import AdminComplaintDetail from './Admin_pages/AdminComplaintDetail';
+import AdminContactRequest from './Admin_pages/AdminContactRequest';
+import AdminComplaintHistory from './Admin_pages/AdminComplaintHistory';
+import AdminSchool from './Admin_pages/AdminSchool';
+import AdminUserRequests from './Admin_pages/AdminUserRequests';
+
+import SOSConfirmModal from './components/SOSConfirmModal';
 
 export default function App() {
   return (
@@ -31,27 +35,37 @@ function AppContent() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Home onSOSClick={() => setShowSOSModal(true)} />} />
+        {/* Login-оос эхэлнэ */}
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-
+        {/* User pages */}
+        <Route
+          path="/home"
+          element={<Home onSOSClick={() => setShowSOSModal(true)} />}
+        />
         <Route path="/report" element={<ReportForm />} />
         <Route path="/heatmap" element={<SafetyHeatmap />} />
+        <Route
+          path="/sos-info"
+          element={<SOSInfo onSOSClick={() => setShowSOSModal(true)} />}
+        />
 
+        {/* Admin pages */}
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/complaints" element={<AdminComplaints />} />
         <Route path="/admin/sos-map" element={<AdminSOSMap />} />
         <Route path="/admin/complaint-detail" element={<AdminComplaintDetail />} />
         <Route path="/admin/history" element={<AdminComplaintHistory />} />
-       <Route path="/admin/contact-request" element={<AdminContactRequest />} />
-       <Route path="/admin/school" element={<AdminSchool />} />
-        <Route path="/sos-info" 
-        element={<SOSInfo onSOSClick={() => setShowSOSModal(true)} />}
-/>
+        <Route path="/admin/contact-request" element={<AdminContactRequest />} />
+        <Route path="/admin/school" element={<AdminSchool />} />
+        <Route path="/admin/user-requests" element={<AdminUserRequests />} />
       </Routes>
 
-      
+      {showSOSModal && (
+        <SOSConfirmModal onClose={() => setShowSOSModal(false)} />
+      )}
     </>
   );
 }
