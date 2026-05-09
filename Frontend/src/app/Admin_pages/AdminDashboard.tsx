@@ -134,6 +134,7 @@ function AdminSidebar({ active }: { active: string }) {
         <SidebarButton icon={<School />} label="Сургууль" onClick={() => navigate('/admin/school')}
 />
         <SidebarButton icon={<Bell />} label="Мэдэгдэл" />
+        
 
         <div className="mt-auto text-center">
           <div className="text-[38px]">👻</div>
