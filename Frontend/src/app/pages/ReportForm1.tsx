@@ -236,7 +236,7 @@ export default function ReportForm() {
               <Home className="w-5 h-5" /> Буцах
             </button>
             <button
-              onClick={() => navigate('/calm')}
+              onClick={() => navigate('/breathe')}
               className="flex-1 bg-[#1E3A8A] text-white py-5 rounded-[28px] font-bold shadow-xl shadow-blue-900/20 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               <Wind className="w-5 h-5 text-blue-200" /> Тайвшруулах

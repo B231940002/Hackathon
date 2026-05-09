@@ -13,7 +13,7 @@ import AdminComplaintDetail from './pages/AdminComplaintDetail';
 import AdminContactRequest from './pages/AdminContactRequest';
 import AdminComplaintHistory from './pages/AdminComplaintHistory';
 import AdminSchool from './pages/AdminSchool';
-
+import BreathingExercise from './pages/deepBreathe';
 
 export default function App() {
   return (
@@ -38,14 +38,15 @@ function AppContent() {
 
         <Route path="/report" element={<ReportForm />} />
         <Route path="/heatmap" element={<SafetyHeatmap />} />
+        <Route path="/breathe" element={<BreathingExercise />} />
 
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/complaints" element={<AdminComplaints />} />
         <Route path="/admin/sos-map" element={<AdminSOSMap />} />
         <Route path="/admin/complaint-detail" element={<AdminComplaintDetail />} />
         <Route path="/admin/history" element={<AdminComplaintHistory />} />
-       <Route path="/admin/contact-request" element={<AdminContactRequest />} />
-       <Route path="/admin/school" element={<AdminSchool />} />
+        <Route path="/admin/contact-request" element={<AdminContactRequest />} />
+        <Route path="/admin/school" element={<AdminSchool />} />
         <Route path="/sos-info" 
         element={<SOSInfo onSOSClick={() => setShowSOSModal(true)} />}
 />
