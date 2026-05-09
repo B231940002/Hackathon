@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
-// server.js доторх хэсэг:
 const schoolRoutes = require("./routes/school.routes");
 const adminRoutes = require("./routes/admin.routes");
 const studentRoutes = require("./routes/student.routes");
