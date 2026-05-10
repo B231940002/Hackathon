@@ -43,7 +43,7 @@ function AppContent() {
 
         <Route
           path="/home"
-          element={<Home onSOSClick={() => setShowSOSModal(true)} />}
+          element={<Home/>}
         />
         <Route path="/report" element={<ReportForm />} />
         <Route path="/breathe" element={<BreathingExercise />} />
