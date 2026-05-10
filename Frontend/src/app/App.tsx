@@ -17,9 +17,8 @@ import AdminSchool from './Admin_pages/AdminSchool';
 import AdminUserRequests from './Admin_pages/AdminUserRequests';
 
 import SOSConfirmModal from './components/SOSConfirmModal';
-import BreathingExercise from './Student_pages/deepBreathe';
-import Notifications from './Student_pages/notification';
-import NotificationPage from './Student_pages/notification';
+import DeepBreathe from './Student_pages/deepBreathe';
+import Notification from './Student_pages/notification';
 
 export default function App() {
   return (
@@ -43,19 +42,16 @@ function AppContent() {
         <Route path="/register" element={<Register />} />
 
         {/* User pages */}
-        <Route
-          path="/home"
-          element={<Home onSOSClick={() => setShowSOSModal(true)} />}
-        />
+        <Route path="/home" element={<Home />} />
         <Route path="/report" element={<ReportForm />} />
-        <Route path="/breathe" element={<BreathingExercise />} />
-        <Route path="/notification" element={<NotificationPage />} />
         <Route
           path="/sos-info"
           element={<SOSInfo onSOSClick={() => setShowSOSModal(true)} />}
         />
 
         {/* Admin pages */}
+        <Route path="/breathe" element={<DeepBreathe />} />
+        <Route path="/notification" element={<Notification />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/complaints" element={<AdminComplaints />} />
         <Route path="/admin/sos-map" element={<AdminSOSMap />} />

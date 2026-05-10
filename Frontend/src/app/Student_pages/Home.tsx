@@ -175,7 +175,9 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white/95 via-[#F3EFFF] to-white flex justify-center px-4 py-6 pb-28 font-sans relative">
       <div className="w-full max-w-md bg-gradient-to-b from-[#C7B9FF] via-[#F3EFFF] backdrop-blur-xl rounded-[40px] shadow-2xl overflow-hidden flex flex-col relative border border-white">
+        
         <div className="px-6 pt-10 pb-5 flex-1 overflow-y-auto scrollbar-hide">
+          
           <div className="flex items-center justify-between mb-8 px-2 w-full">
             <div className="w-10 h-10" />
 
@@ -191,7 +193,9 @@ export default function Home() {
               </h1>
             </div>
 
+            {/* Notification Button */}
             <button
+              onClick={() => navigate('/notification')}
               className="w-10 h-10 rounded-2xl bg-white/60 flex items-center justify-center text-violet-700 shadow-sm border border-white relative active:scale-95 transition-transform"
             >
               <Bell size={20} />
@@ -200,6 +204,7 @@ export default function Home() {
             </button>
           </div>
 
+          {/* Greeting */}
           <div className="mb-8 bg-white p-6 rounded-[34px] shadow-sm flex items-center gap-4 border border-violet-50">
             <div className="flex-shrink-0 bg-violet-50 rounded-2xl p-1">
               <KawaiiGhost sizeClass="w-[85px] h-[85px]" />
@@ -216,6 +221,7 @@ export default function Home() {
             </div>
           </div>
 
+          {/* SOS CARD */}
           <div className="relative bg-white rounded-[36px] shadow-sm px-5 pt-10 pb-8 mb-7 border border-slate-50">
             <PeekingKawaiiRight />
 
@@ -276,6 +282,7 @@ export default function Home() {
               3 секунд дарна уу
             </p>
 
+            {/* SOS INFO BUTTON */}
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={() => navigate('/sos-info')}
@@ -306,10 +313,12 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Bottom Navigation */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-white/95 backdrop-blur-xl rounded-[34px] shadow-2xl px-6 py-4 z-50 border border-white/50">
         <div className="flex items-center justify-center gap-16">
+          
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/home')}
             className="flex flex-col items-center gap-1 text-violet-700 font-black active:scale-95 transition-transform"
           >
             <div className="bg-violet-100 px-6 py-2.5 rounded-[20px] shadow-inner">
