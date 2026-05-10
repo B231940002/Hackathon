@@ -1,5 +1,84 @@
 const { db } = require("../config/firebase");
 const { REPORT_STATUS } = require("../utils/status");
+const { scoreReportSeverity } = require("../ai_api/gemini");
+
+const normalizeAiScore = (score) => {
+  const numericScore = Number(score);
+
+  if (!Number.isFinite(numericScore)) {
+    return 5;
+  }
+
+  return Math.min(10, Math.max(1, Math.round(numericScore)));
+};
+
+const serializeTimestamp = (value) => {
+  if (!value) {
+    return null;
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  if (typeof value.toDate === "function") {
+    return value.toDate().toISOString();
+  }
+
+  if (typeof value === "object" && typeof value._seconds === "number") {
+    return new Date(value._seconds * 1000).toISOString();
+  }
+
+  return value;
+};
+
+const timestampToMillis = (value) => {
+  if (!value) {
+    return 0;
+  }
+
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+
+  if (typeof value.toDate === "function") {
+    return value.toDate().getTime();
+  }
+
+  if (typeof value === "object" && typeof value._seconds === "number") {
+    return value._seconds * 1000;
+  }
+
+  const parsed = new Date(value).getTime();
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const serializeReport = (docOrId, data) => {
+  const id = typeof docOrId === "string" ? docOrId : docOrId.id;
+  const reportData = data || docOrId.data();
+
+  return {
+    id,
+    ...reportData,
+    ai_score: normalizeAiScore(reportData.ai_score),
+    created_at: serializeTimestamp(reportData.created_at),
+    updated_at: serializeTimestamp(reportData.updated_at),
+    resolved_at: serializeTimestamp(reportData.resolved_at),
+    ai_score_updated_at: serializeTimestamp(reportData.ai_score_updated_at),
+  };
+};
+
+const sortReportsByAiScore = (reports) =>
+  reports.sort((first, second) => {
+    const scoreDiff =
+      normalizeAiScore(second.ai_score) - normalizeAiScore(first.ai_score);
+
+    if (scoreDiff !== 0) {
+      return scoreDiff;
+    }
+
+    return timestampToMillis(second.created_at) - timestampToMillis(first.created_at);
+  });
 
 const createReport = async (req, res) => {
   try {
@@ -37,6 +116,24 @@ const createReport = async (req, res) => {
     }
 
     const reportRef = db.collection("reports").doc();
+    const aiScore = normalizeAiScore(
+      await scoreReportSeverity({
+        report_type,
+        reporter_role: reporter_role || "witness",
+        description,
+        knows_bully: knows_bully ?? false,
+      })
+    );
+
+    const adminSnapshot = await db
+      .collection("admins")
+      .where("school_id", "==", school_id)
+      .limit(1)
+      .get();
+
+    const assignedAdmin = adminSnapshot.empty
+      ? null
+      : adminSnapshot.docs[0].data();
 
     const reportData = {
       report_id: reportRef.id,
@@ -45,7 +142,9 @@ const createReport = async (req, res) => {
       // anonymous report тул student_id null байж болно
       student_id: student_id || null,
 
-      assigned_admin_id: null,
+      assigned_admin_id: assignedAdmin
+        ? assignedAdmin.admin_id || adminSnapshot.docs[0].id
+        : null,
       is_anonymous: is_anonymous ?? true,
 
       report_type,
@@ -59,10 +158,12 @@ const createReport = async (req, res) => {
       description,
 
       status: REPORT_STATUS.PENDING,
+      ai_score: aiScore,
 
       created_at: new Date(),
       updated_at: new Date(),
       resolved_at: null,
+      ai_score_updated_at: new Date(),
     };
 
     await reportRef.set(reportData);
@@ -108,10 +209,27 @@ const createReport = async (req, res) => {
       }
     }
 
+    if (assignedAdmin) {
+      const notifRef = db.collection("notifications").doc();
+      await notifRef.set({
+        notification_id: notifRef.id,
+        admin_id: reportData.assigned_admin_id,
+        school_id,
+        source_id: reportRef.id,
+        source_type: "report",
+        title: "Шинэ Report ирлээ",
+        message: `Сурагчаас ${report_type} төрлийн report ирсэн байна`,
+        is_read: false,
+        ai_score: aiScore,
+        created_at: new Date(),
+        read_at: null,
+      });
+    }
+
     return res.status(201).json({
       success: true,
       message: "Report амжилттай илгээгдлээ.",
-      data: reportData,
+      data: serializeReport(reportRef.id, reportData),
     });
   } catch (error) {
     console.error("CREATE REPORT ERROR:", error);
@@ -131,13 +249,11 @@ const getReportsBySchool = async (req, res) => {
     const snapshot = await db
       .collection("reports")
       .where("school_id", "==", school_id)
-      .orderBy("created_at", "desc")
       .get();
 
-    const reports = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const reports = sortReportsByAiScore(
+      snapshot.docs.map((doc) => serializeReport(doc))
+    );
 
     return res.status(200).json({
       success: true,
@@ -148,6 +264,56 @@ const getReportsBySchool = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Report жагсаалт авахад алдаа гарлаа.",
+      error: error.message,
+    });
+  }
+};
+
+const getReportsForAdmin = async (req, res) => {
+  try {
+    const { admin_id } = req.params;
+    const { school_id } = req.query;
+
+    if (!admin_id) {
+      return res.status(400).json({
+        success: false,
+        message: "admin_id шаардлагатай.",
+      });
+    }
+
+    let snapshot;
+
+    if (school_id) {
+      snapshot = await db
+        .collection("reports")
+        .where("school_id", "==", school_id)
+        .get();
+    } else {
+      snapshot = await db
+        .collection("reports")
+        .where("assigned_admin_id", "==", admin_id)
+        .get();
+    }
+
+    const reports = snapshot.docs
+      .map((doc) => serializeReport(doc))
+      .filter((report) => {
+        if (!school_id) {
+          return true;
+        }
+
+        return !report.assigned_admin_id || report.assigned_admin_id === admin_id;
+      });
+
+    return res.status(200).json({
+      success: true,
+      count: reports.length,
+      data: sortReportsByAiScore(reports),
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Admin report жагсаалт авахад алдаа гарлаа.",
       error: error.message,
     });
   }
@@ -218,6 +384,7 @@ const updateReportStatus = async (req, res) => {
 
 module.exports = {
   createReport,
+  getReportsForAdmin,
   getReportsBySchool,
   updateReportStatus,
 };

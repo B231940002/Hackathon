@@ -59,7 +59,11 @@ const loginAdmin = async (req, res) => {
       message: "Admin амжилттай нэвтэрлээ.",
       data: {
         admin_id: adminData.admin_id || adminDoc.id,
+
+        // school холболтын мэдээлэл
         school_id: adminData.school_id || "",
+        school_code: adminData.school_code || "",
+
         admin_name: adminData.admin_name || "",
         admin_email: adminData.admin_email || normalizedIdentifier,
         username: adminData.username || adminData.admin_email || normalizedIdentifier,

@@ -7,7 +7,6 @@ const getNotificationsByAdmin = async (req, res) => {
     const snapshot = await db
       .collection("notifications")
       .where("admin_id", "==", admin_id)
-      .orderBy("created_at", "desc")
       .get();
 
     const notifications = snapshot.docs.map((doc) => doc.data());
