@@ -109,14 +109,6 @@ export default function SOSInfo({ onSOSClick }: SOSInfoProps) {
               </div>
             </div>
           </div>
-
-          <motion.button
-            onClick={onSOSClick}
-            whileTap={{ scale: 0.96 }}
-            className="mt-7 w-full bg-gradient-to-br from-[#FF3B4F] to-[#EF233C] text-white rounded-[24px] py-5 font-bold text-[18px] shadow-[0_14px_35px_rgba(239,35,60,0.35)]"
-          >
-            SOS илгээх
-          </motion.button>
         </div>
       </div>
     </div>

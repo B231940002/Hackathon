@@ -1,3 +1,5 @@
+import { useEffect, useMemo, useState } from 'react';
+import AdminDashboardReports from './AdminDashboardReports';
 import { useNavigate } from 'react-router';
 import {
   Shield,
@@ -8,31 +10,64 @@ import {
   School,
   Bell,
   UserPlus,
+  LogOut,
 } from 'lucide-react';
+import {
+  type AdminReport,
+  fetchAdminReports,
+  formatReportTime,
+  getAiScore,
+  getPriorityLabel,
+  getReportIcon,
+  getReportIconClass,
+  getReportId,
+  getReportLocation,
+  getReportTitle,
+  isResolvedReport,
+  isTodayReport,
+} from '../lib/adminReports';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
+  const [reports, setReports] = useState<AdminReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const issues = [
-    {
-      id: 1,
-      title: 'Сэтгэл санааны дарамт',
-      time: '10:24 AM',
-      school: '5-р сургууль',
-      icon: '😡',
-      level: 'Маш чухал',
-      color: 'bg-red-50 text-red-500',
-    },
-    {
-      id: 2,
-      title: 'Бие махбодын хүчирхийлэл',
-      time: '09:51 AM',
-      school: '12-р сургууль',
-      icon: '💪',
-      level: 'Маш чухал',
-      color: 'bg-purple-50 text-[#7C3AED]',
-    },
-  ];
+  useEffect(() => {
+    const loadReports = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        setReports(await fetchAdminReports());
+      } catch (err) {
+        setReports([]);
+        setError(err instanceof Error ? err.message : 'Report мэдээлэл авахад алдаа гарлаа.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadReports();
+  }, []);
+
+  const stats = useMemo(() => {
+    const unresolved = reports.filter((report) => !isResolvedReport(report));
+    const resolved = reports.filter(isResolvedReport);
+    const highRisk = unresolved.filter((report) => getAiScore(report) >= 7);
+    const todayHighRisk = highRisk.filter(isTodayReport);
+    const total = reports.length || 1;
+
+    return {
+      unresolved,
+      resolved,
+      highRisk,
+      todayHighRisk,
+      resolvedPercent: Math.round((resolved.length / total) * 100),
+      unresolvedPercent: Math.round((unresolved.length / total) * 100),
+    };
+  }, [reports]);
+
+  const issues = stats.unresolved.slice(0, 3);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E9DDFF] via-[#F8F5FF] to-white p-3 md:p-4">
@@ -56,8 +91,22 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            <StatCard title="Шийдвэрлэгдээгүй" value="38" sub="29.7%" color="text-orange-500" icon="!" bg="bg-orange-100" />
-            <StatCard title="Шийдвэрлэсэн" value="90" sub="70.3%" color="text-green-500" icon="✓" bg="bg-green-100" />
+            <StatCard
+              title="Шийдвэрлэгдээгүй"
+              value={loading ? '...' : stats.unresolved.length}
+              sub={`${stats.unresolvedPercent}%`}
+              color="text-orange-500"
+              icon="!"
+              bg="bg-orange-100"
+            />
+            <StatCard
+              title="Шийдвэрлэсэн"
+              value={loading ? '...' : stats.resolved.length}
+              sub={`${stats.resolvedPercent}%`}
+              color="text-green-500"
+              icon="✓"
+              bg="bg-green-100"
+            />
             <StatCard title="SOS дуудлага" value="9" sub="Өнөөдөр +3" color="text-red-500" icon="📞" bg="bg-red-100" />
           </div>
 
@@ -67,8 +116,12 @@ export default function AdminDashboard() {
                 <h3 className="text-[#312E81] font-bold text-lg">
                   Өндөр эрсдэлтэй
                 </h3>
-                <h2 className="text-red-500 text-4xl font-bold mt-2">16</h2>
-                <p className="text-[#64748B] text-sm mt-1">Өнөөдөр +6</p>
+                <h2 className="text-red-500 text-4xl font-bold mt-2">
+                  {loading ? '...' : stats.highRisk.length}
+                </h2>
+                <p className="text-[#64748B] text-sm mt-1">
+                  Өнөөдөр +{stats.todayHighRisk.length}
+                </p>
               </div>
 
               <div className="w-16 h-16 rounded-full bg-red-500 text-white flex items-center justify-center text-3xl font-bold">
@@ -81,36 +134,9 @@ export default function AdminDashboard() {
             Шийдвэрлэх шаардлагатай чухал асуудлууд
           </h2>
 
-          <div className="space-y-3">
-            {issues.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => navigate('/admin/complaint-detail')}
-                className="w-full bg-white rounded-[22px] border border-[#EDE9FE] p-4 flex items-center gap-3 md:gap-4 hover:shadow-[0_10px_30px_rgba(124,58,237,0.12)] transition text-left"
-              >
-                <span className="text-red-500 font-bold text-lg md:text-xl">
-                  {item.id}
-                </span>
+          <AdminDashboardReports />
 
-                <div className={`w-11 h-11 md:w-12 md:h-12 rounded-2xl flex items-center justify-center text-[24px] md:text-[26px] ${item.color}`}>
-                  {item.icon}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-[#312E81] font-bold text-sm md:text-base">
-                    {item.title}
-                  </h3>
-                  <p className="text-[#64748B] text-xs md:text-sm">
-                    {item.time} · {item.school}
-                  </p>
-                </div>
-
-                <span className="bg-red-50 text-red-500 px-2 md:px-3 py-1 rounded-full text-[10px] md:text-xs font-bold whitespace-nowrap">
-                  {item.level}
-                </span>
-              </button>
-            ))}
-          </div>
+          
         </main>
       </div>
     </div>

@@ -276,7 +276,7 @@ export default function Register() {
 
           <p className="text-center text-[#94A3B8] text-[14px] mt-6">
             Аль хэдийн бүртгэлтэй юу?{' '}
-            <Link to="/login" className="text-[#7C3AED] font-bold">
+            <Link to="/" className="text-[#7C3AED] font-bold">
               Нэвтрэх
             </Link>
           </p>
