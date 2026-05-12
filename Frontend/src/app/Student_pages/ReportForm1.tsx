@@ -13,6 +13,8 @@ import {
   Star,
   CheckCircle,
   BicepsFlexed
+  Trash2,
+  BicepsFlexed // Булчингийн icon-ийг энд импортолсон
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -130,6 +132,97 @@ const encouragingSteps = [
   },
 ];
 
+type ImageAttachment = {
+  fileName: string;
+  fileType: string;
+  dataUrl: string;
+};
+
+const MAX_IMAGE_SIDE = 1280;
+const MAX_IMAGE_DATA_URL_LENGTH = 900000;
+const IMAGE_JPEG_QUALITY = 0.82;
+
+const createCompressedImageAttachment = (
+  file: File
+): Promise<ImageAttachment> =>
+  new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) {
+      reject(new Error('Зөвхөн зураг сонгоно уу.'));
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onerror = () => reject(new Error('Зураг уншиж чадсангүй.'));
+    reader.onload = () => {
+      const source = reader.result;
+
+      if (typeof source !== 'string') {
+        reject(new Error('Зураг бэлтгэж чадсангүй.'));
+        return;
+      }
+
+      const image = new window.Image();
+
+      image.onerror = () => reject(new Error('Зураг ачаалахад алдаа гарлаа.'));
+      image.onload = () => {
+        const render = (maxSide: number, quality: number) => {
+          const canvas = document.createElement('canvas');
+          let { width, height } = image;
+
+          if (width > height && width > maxSide) {
+            height = Math.round((height * maxSide) / width);
+            width = maxSide;
+          } else if (height >= width && height > maxSide) {
+            width = Math.round((width * maxSide) / height);
+            height = maxSide;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+
+          if (!ctx) {
+            return null;
+          }
+
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, width, height);
+          ctx.drawImage(image, 0, 0, width, height);
+
+          return canvas.toDataURL('image/jpeg', quality);
+        };
+
+        let dataUrl = render(MAX_IMAGE_SIDE, IMAGE_JPEG_QUALITY);
+
+        if (!dataUrl) {
+          reject(new Error('Зураг бэлтгэж чадсангүй.'));
+          return;
+        }
+
+        if (dataUrl.length > MAX_IMAGE_DATA_URL_LENGTH) {
+          dataUrl = render(960, 0.7) || dataUrl;
+        }
+
+        if (dataUrl.length > MAX_IMAGE_DATA_URL_LENGTH) {
+          reject(new Error('Зураг хэт том байна. Илүү жижиг зураг сонгоно уу.'));
+          return;
+        }
+
+        resolve({
+          fileName: file.name,
+          fileType: 'image/jpeg',
+          dataUrl,
+        });
+      };
+
+      image.src = source;
+    };
+
+    reader.readAsDataURL(file);
+  });
+
 export default function ReportForm() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -144,8 +237,14 @@ export default function ReportForm() {
   const [extra, setExtra] = useState('');
 
   const [imageFile, setImageFile] = useState<File | null>(null);
+  // Файл хадгалах state-үүд
+  const [imageAttachment, setImageAttachment] = useState<ImageAttachment | null>(null);
+  const [imageError, setImageError] = useState('');
+
   const [randomIndex, setRandomIndex] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     const random = Math.floor(Math.random() * encouragingSteps.length);
@@ -162,8 +261,110 @@ export default function ReportForm() {
     else navigate('/');
   };
 
-  const submitReport = () => {
-    setStep(4);
+  const handleImageSelected = async (file?: File | null) => {
+    if (!file) return;
+
+    setImageError('');
+
+    try {
+      const attachment = await createCompressedImageAttachment(file);
+      setImageAttachment(attachment);
+    } catch (error) {
+      setImageAttachment(null);
+      setImageError(
+        error instanceof Error ? error.message : 'Зураг оруулахад алдаа гарлаа.'
+      );
+    }
+  };
+
+  const removeImage = () => {
+    setImageAttachment(null);
+    setImageError('');
+  };
+
+  const submitReport = async () => {
+    setSubmitError('');
+
+    if (!description.trim()) {
+      setSubmitError('Тайлбараа бөглөнө үү.');
+      return;
+    }
+
+    const reportType = type || 'general';
+
+    const savedUser = localStorage.getItem('student_user');
+
+    let student: { student_id?: string; school_id?: string } | null = null;
+
+    if (savedUser) {
+      try {
+        student = JSON.parse(savedUser);
+      } catch {
+        localStorage.removeItem('student_user');
+        localStorage.removeItem('student_is_logged_in');
+        student = null;
+      }
+    }
+
+    const evidenceFiles = imageAttachment
+      ? [
+          {
+            file_url: imageAttachment.dataUrl,
+            file_name: imageAttachment.fileName,
+            file_type: imageAttachment.fileType,
+          },
+        ]
+      : [];
+
+    const payload = {
+      student_id: student?.student_id || null,
+      school_id: student?.school_id || 'demo-school',
+      is_anonymous: true,
+      report_type: reportType,
+      reporter_role: role || 'witness',
+      location_text: location.trim(),
+      knows_bully: known === 'yes',
+      description: extra.trim()
+        ? `${description.trim()}\n\nНэмэлт тайлбар: ${extra.trim()}`
+        : description.trim(),
+      bullies:
+        known === 'yes'
+          ? [
+              {
+                is_known: true,
+                bully_name: bullyName.trim(),
+                bully_group: classGroup.trim(),
+              },
+            ]
+          : [],
+      evidence_files: evidenceFiles,
+    };
+
+    try {
+      setSubmitting(true);
+
+      const res = await fetch('http://localhost:5001/api/reports', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.success === false) {
+        setSubmitError(data.message || 'Мэдээлэл илгээхэд алдаа гарлаа.');
+        return;
+      }
+
+      setStep(4);
+    } catch (error) {
+      console.error('REPORT SUBMIT ERROR:', error);
+      setSubmitError('Backend сервертэй холбогдож чадсангүй.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!isLoaded) return null;
@@ -476,19 +677,61 @@ export default function ReportForm() {
                       type="file" 
                       accept="image/*,video/*" 
                       className="hidden" 
+                  <label className="rounded-[18px] border border-[#EDE9FE] bg-white p-4 flex flex-col items-center gap-2 shadow-[0_8px_24px_rgba(124,58,237,0.08)] hover:border-purple-200 transition-colors cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
                       onChange={(e) => {
-                        if (e.target.files && e.target.files.length > 0) {
-                          setImageFile(e.target.files[0]);
-                        }
-                      }} 
+                        const file = e.target.files?.[0] ?? null;
+                        handleImageSelected(file);
+                        e.currentTarget.value = '';
+                      }}
                     />
                     <Image className="text-[#7C3AED]" size={32} />
                     <span className="text-[#312E81] text-[14px] font-bold">Зураг</span>
                     <span className={`text-[12px] ${imageFile ? 'text-emerald-500 font-bold' : 'text-[#7C3AED]'}`}>
                       {imageFile ? '✔ Сонгосон' : 'Файл оруулах'}
+                    <Image className="text-[#7C3AED]" size={28} />
+                    <span className="text-[#312E81] text-[12px] font-bold">Зураг</span>
+                    <span className={`text-[11px] ${imageAttachment ? 'text-emerald-500 font-bold' : 'text-[#7C3AED]'}`}>
+                      {imageAttachment ? '✔ Сонгосон' : 'Оруулах'}
                     </span>
                   </label>
+
+                  {imageAttachment && (
+                    <div className="rounded-[18px] border border-[#EDE9FE] bg-white p-3 shadow-[0_8px_24px_rgba(124,58,237,0.08)]">
+                      <div className="overflow-hidden rounded-[14px] border border-[#F3E8FF]">
+                        <img
+                          src={imageAttachment.dataUrl}
+                          alt="Сонгосон зураг"
+                          className="h-40 w-full object-cover"
+                        />
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-[#312E81] text-[12px] font-bold">
+                            {imageAttachment.fileName}
+                          </p>
+                          <p className="text-[#94A3B8] text-[11px]">Зураг хавсаргалаа</p>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={removeImage}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#EDE9FE] text-[#7C3AED]"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                {imageError && (
+                  <p className="mt-2 text-[12px] font-medium text-red-500">{imageError}</p>
+                )}
               </div>
 
               <div>
@@ -508,11 +751,18 @@ export default function ReportForm() {
                 <p className="text-[#7C3AED] text-[12px] font-medium">Таны өгсөн мэдээлэл зөвхөн итгэмжлэгдсэн хүмүүст нууцаар хүргэгдэнэ.</p>
               </div>
 
+              {submitError && (
+                <div className="rounded-[16px] border border-red-200 bg-red-50 px-4 py-3 text-center text-[13px] font-semibold text-red-600">
+                  {submitError}
+                </div>
+              )}
+
               <button
                 onClick={submitReport}
-                className="w-full bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white rounded-[22px] py-4 font-bold shadow-[0_12px_28px_rgba(124,58,237,0.28)] flex items-center justify-center gap-2"
+                disabled={submitting}
+                className="w-full bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white rounded-[22px] py-4 font-bold shadow-[0_12px_28px_rgba(124,58,237,0.28)] flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <Send size={20} /> Илгээх
+                <Send size={20} /> {submitting ? 'Илгээж байна...' : 'Илгээх'}
               </button>
 
               <div className="flex items-center justify-center gap-2 text-[#64748B] text-[12px]">

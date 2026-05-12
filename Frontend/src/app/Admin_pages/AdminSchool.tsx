@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import {
   Shield,
@@ -10,35 +10,168 @@ import {
   BarChart3,
   Bell,
   Building2,
-  Hash,
   MapPinned,
   Save,
+  CheckCircle,
+  AlertCircle,
+  Hash,
 } from 'lucide-react';
+
+const API_BASE = 'http://localhost:5001/api';
 
 export default function AdminSchool() {
   const navigate = useNavigate();
 
   const [schoolName, setSchoolName] = useState('');
-  const [schoolCode, setSchoolCode] = useState('');
   const [schoolCity, setSchoolCity] = useState('');
-  const [schoolDistrict, setSchoolDistrict] = useState('');
+  const [schoolAddress, setSchoolAddress] = useState('');
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
 
-  const handleSave = () => {
-    const schoolData = {
-      school_name: schoolName,
-      school_code: schoolCode,
-      school_city: schoolCity,
-      school_district: schoolDistrict,
-      latitude,
-      longitude,
-    };
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [createdSchool, setCreatedSchool] = useState<any>(null);
+  const [adminUser, setAdminUser] = useState<any>(null);
 
-    console.log(schoolData);
+  useEffect(() => {
+    const adminUserRaw = localStorage.getItem('admin_user');
 
-    alert('Сургуулийн мэдээлэл амжилттай бүртгэгдлээ');
+    if (!adminUserRaw) {
+      setError('Admin мэдээлэл олдсонгүй. Дахин login хийнэ үү.');
+      return;
+    }
+
+    try {
+      const parsedAdmin = JSON.parse(adminUserRaw);
+      setAdminUser(parsedAdmin);
+
+      if (parsedAdmin.school_id) {
+        setCreatedSchool({
+          school_id: parsedAdmin.school_id,
+          school_code: parsedAdmin.school_code || '',
+        });
+
+        setMessage('Та аль хэдийн сургууль бүртгэсэн байна.');
+      }
+    } catch {
+      setError('Admin мэдээлэл уншихад алдаа гарлаа. Дахин login хийнэ үү.');
+    }
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      setMessage('');
+      setError('');
+
+      if (!adminUser) {
+        setError('Admin мэдээлэл олдсонгүй. Дахин login хийнэ үү.');
+        return;
+      }
+
+      if (!adminUser.admin_id) {
+        setError('Admin ID олдсонгүй. Дахин login хийнэ үү.');
+        return;
+      }
+
+      if (adminUser.school_id) {
+        setError(
+          'Та аль хэдийн сургууль бүртгэсэн байна. Нэг admin зөвхөн нэг сургууль бүртгэх эрхтэй.'
+        );
+        return;
+      }
+
+      if (!schoolName.trim()) {
+        setError('Сургуулийн нэр оруулна уу.');
+        return;
+      }
+
+      if (!schoolCity.trim()) {
+        setError('Хот / Аймаг оруулна уу.');
+        return;
+      }
+
+      if (!schoolAddress.trim()) {
+        setError('Сургуулийн хаяг оруулна уу.');
+        return;
+      }
+
+      const latNumber = latitude.trim() ? Number(latitude) : null;
+      const lngNumber = longitude.trim() ? Number(longitude) : null;
+
+      if (latitude.trim() && Number.isNaN(latNumber)) {
+        setError('Latitude зөв тоон утга байх ёстой.');
+        return;
+      }
+
+      if (longitude.trim() && Number.isNaN(lngNumber)) {
+        setError('Longitude зөв тоон утга байх ёстой.');
+        return;
+      }
+
+      setLoading(true);
+
+      const schoolData = {
+        admin_id: adminUser.admin_id,
+        school_name: schoolName.trim(),
+        school_city: schoolCity.trim(),
+        school_address: schoolAddress.trim(),
+        latitude: latNumber,
+        longitude: lngNumber,
+      };
+
+      const response = await fetch(`${API_BASE}/schools`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(schoolData),
+      });
+
+      const text = await response.text();
+
+      let result;
+      try {
+        result = JSON.parse(text);
+      } catch {
+        console.error('CREATE SCHOOL NON JSON RESPONSE:', text);
+        setError('/api/schools route JSON буцаахгүй байна. Backend route-оо шалга.');
+        return;
+      }
+
+      console.log('CREATE SCHOOL RESPONSE:', result);
+
+      if (!response.ok || !result.success) {
+        setError(result.message || 'Сургууль бүртгэхэд алдаа гарлаа.');
+        return;
+      }
+
+      const updatedAdminUser = {
+        ...adminUser,
+        school_id: result.data.school_id,
+        school_code: result.data.school_code,
+      };
+
+      localStorage.setItem('admin_user', JSON.stringify(updatedAdminUser));
+      setAdminUser(updatedAdminUser);
+
+      setCreatedSchool(result.data);
+      setMessage('Сургууль амжилттай бүртгэгдлээ.');
+
+      setSchoolName('');
+      setSchoolCity('');
+      setSchoolAddress('');
+      setLatitude('');
+      setLongitude('');
+    } catch (err) {
+      console.error('CREATE SCHOOL ERROR:', err);
+      setError('Backend сервертэй холбогдож чадсангүй. Backend ажиллаж байгаа эсэхийг шалгана уу.');
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const alreadyHasSchool = Boolean(adminUser?.school_id);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#E9DDFF] via-[#F8F5FF] to-white p-3 md:p-4">
@@ -52,7 +185,7 @@ export default function AdminSchool() {
             </h1>
 
             <p className="text-[#94A3B8] text-sm mt-1">
-              Сургуулийн үндсэн мэдээллийг системд бүртгэнэ.
+              Нэг admin зөвхөн нэг сургууль бүртгэх боломжтой.
             </p>
           </div>
 
@@ -67,26 +200,80 @@ export default function AdminSchool() {
               </h3>
 
               <p className="text-[#94A3B8] text-sm mt-1 leading-relaxed">
-                Сурагч бүртгүүлэхдээ сургуулийн код ашиглан өөрийн сургуультай холбогдоно.
+                Сургууль бүртгэсний дараа систем автоматаар SCH001, SCH002 гэх мэт
+                сургуулийн код үүсгэнэ. Сурагч бүртгүүлэхдээ энэ кодыг ашиглана.
               </p>
             </div>
           </div>
 
+          {message && createdSchool && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-[24px] p-5 mb-5">
+              <div className="flex items-start gap-3">
+                <CheckCircle className="text-emerald-600 flex-shrink-0 mt-1" size={24} />
+
+                <div className="flex-1">
+                  <p className="text-emerald-700 font-bold text-[15px]">
+                    {message}
+                  </p>
+
+                  <div className="mt-4 bg-white rounded-[20px] border border-emerald-100 p-4">
+                    <p className="text-[#312E81] text-sm mb-2">
+                      <span className="font-bold">Сургуулийн код:</span>
+                    </p>
+
+                    <div className="inline-flex items-center gap-2 bg-[#F3E8FF] border border-[#DDD6FE] rounded-[18px] px-5 py-3">
+                      <Hash className="text-[#7C3AED]" size={22} />
+
+                      <span className="text-[#7C3AED] font-black text-[26px] tracking-wide">
+                        {createdSchool.school_code || 'Код олдсонгүй'}
+                      </span>
+                    </div>
+
+                    <p className="text-[#64748B] text-xs mt-4 break-all">
+                      <span className="font-bold">school_id:</span>{' '}
+                      {createdSchool.school_id}
+                    </p>
+
+                    <p className="text-[#64748B] text-xs mt-2">
+                      Сурагч бүртгүүлэхдээ дээрх сургуулийн кодыг ашиглана.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 rounded-[20px] px-4 py-4 mb-5 flex items-start gap-3">
+              <AlertCircle size={22} className="flex-shrink-0 mt-0.5" />
+              <p className="text-sm font-medium">{error}</p>
+            </div>
+          )}
+
           <div className="bg-white rounded-[28px] border border-[#EDE9FE] p-5 md:p-6 shadow-[0_8px_26px_rgba(124,58,237,0.08)]">
+            {alreadyHasSchool && (
+              <div className="bg-amber-50 border border-amber-200 text-amber-700 rounded-[20px] px-4 py-4 mb-5 text-sm font-medium">
+                Та аль хэдийн сургууль бүртгэсэн байна. Дахин сургууль бүртгэх боломжгүй.
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <InputBox
                 label="Сургуулийн нэр"
-                placeholder="Жишээ: 5-р сургууль"
+                placeholder="Жишээ: Нийслэлийн 1-р сургууль"
                 value={schoolName}
                 onChange={setSchoolName}
                 icon={<Building2 size={22} />}
+                disabled={alreadyHasSchool}
               />
 
-              <InputBox
+              <ReadOnlyInfoBox
                 label="Сургуулийн код"
-                placeholder="Жишээ: SCH-005"
-                value={schoolCode}
-                onChange={setSchoolCode}
+                value={
+                  alreadyHasSchool
+                    ? adminUser?.school_code || 'Бүртгэгдсэн код олдсонгүй'
+                    : 'Автоматаар үүснэ: SCH001, SCH002...'
+                }
                 icon={<Hash size={22} />}
               />
 
@@ -96,14 +283,16 @@ export default function AdminSchool() {
                 value={schoolCity}
                 onChange={setSchoolCity}
                 icon={<MapPinned size={22} />}
+                disabled={alreadyHasSchool}
               />
 
               <InputBox
-                label="Дүүрэг / Сум"
-                placeholder="Жишээ: Сүхбаатар дүүрэг"
-                value={schoolDistrict}
-                onChange={setSchoolDistrict}
+                label="Сургуулийн хаяг"
+                placeholder="Жишээ: Сүхбаатар дүүрэг, 1-р хороо"
+                value={schoolAddress}
+                onChange={setSchoolAddress}
                 icon={<MapPinned size={22} />}
+                disabled={alreadyHasSchool}
               />
 
               <InputBox
@@ -112,6 +301,7 @@ export default function AdminSchool() {
                 value={latitude}
                 onChange={setLatitude}
                 icon={<MapPin size={22} />}
+                disabled={alreadyHasSchool}
               />
 
               <InputBox
@@ -120,21 +310,28 @@ export default function AdminSchool() {
                 value={longitude}
                 onChange={setLongitude}
                 icon={<MapPin size={22} />}
+                disabled={alreadyHasSchool}
               />
             </div>
 
             <div className="bg-[#F3E8FF] rounded-[20px] p-4 mt-5">
               <p className="text-[#7C3AED] text-sm font-medium leading-relaxed">
-                school_id, created_at, updated_at мэдээллүүд backend/database дээр автоматаар үүснэ.
+                school_id, school_code, created_at, updated_at мэдээллүүд backend/database
+                дээр автоматаар үүснэ. Frontend-ээс school_code явуулах шаардлагагүй.
               </p>
             </div>
 
             <button
               onClick={handleSave}
-              className="mt-6 w-full bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white rounded-[22px] py-4 font-bold shadow-[0_12px_28px_rgba(124,58,237,0.28)] flex items-center justify-center gap-2 hover:scale-[1.01] transition"
+              disabled={loading || alreadyHasSchool}
+              className="mt-6 w-full bg-gradient-to-r from-[#7C3AED] to-[#8B5CF6] text-white rounded-[22px] py-4 font-bold shadow-[0_12px_28px_rgba(124,58,237,0.28)] flex items-center justify-center gap-2 hover:scale-[1.01] transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
               <Save size={20} />
-              Сургууль бүртгэх
+              {loading
+                ? 'Бүртгэж байна...'
+                : alreadyHasSchool
+                  ? 'Сургууль аль хэдийн бүртгэгдсэн'
+                  : 'Сургууль бүртгэх'}
             </button>
           </div>
         </main>
@@ -149,6 +346,7 @@ function InputBox({
   value,
   onChange,
   icon,
+  disabled = false,
 }: any) {
   return (
     <label className="block">
@@ -156,14 +354,51 @@ function InputBox({
         {label}
       </span>
 
-      <div className="mt-2 flex items-center gap-3 bg-[#F8F5FF] border border-[#EDE9FE] rounded-[18px] px-4 py-4">
-        <div className="text-[#8B5CF6]">{icon}</div>
+      <div
+        className={`mt-2 flex items-center gap-3 border rounded-[18px] px-4 py-4 ${
+          disabled
+            ? 'bg-[#F1F5F9] border-[#E2E8F0]'
+            : 'bg-[#F8F5FF] border-[#EDE9FE]'
+        }`}
+      >
+        <div className={disabled ? 'text-[#64748B]' : 'text-[#8B5CF6]'}>
+          {icon}
+        </div>
 
         <input
           value={value}
+          disabled={disabled}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]"
+          className={`bg-transparent outline-none w-full placeholder:text-[#A8A1C6] ${
+            disabled
+              ? 'text-[#64748B] cursor-not-allowed'
+              : 'text-[#312E81]'
+          }`}
+        />
+      </div>
+    </label>
+  );
+}
+
+function ReadOnlyInfoBox({
+  label,
+  value,
+  icon,
+}: any) {
+  return (
+    <label className="block">
+      <span className="text-[#312E81] font-bold text-[13px]">
+        {label}
+      </span>
+
+      <div className="mt-2 flex items-center gap-3 bg-[#F1F5F9] border border-[#E2E8F0] rounded-[18px] px-4 py-4">
+        <div className="text-[#64748B]">{icon}</div>
+
+        <input
+          value={value}
+          readOnly
+          className="bg-transparent outline-none w-full text-[#64748B] cursor-not-allowed"
         />
       </div>
     </label>

@@ -36,13 +36,13 @@ function AppContent() {
   return (
     <>
       <Routes>
-        {/* Login-оос эхэлнэ */}
         <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* User pages */}
-        <Route path="/home" element={<Home />} />
+        <Route
+          path="/home"
+          element={<Home/>}
+        />
         <Route path="/report" element={<ReportForm />} />
         <Route
           path="/sos-info"

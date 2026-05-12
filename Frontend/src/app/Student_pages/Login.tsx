@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import {
   ShieldCheck,
@@ -10,6 +11,8 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 
+type Role = 'student' | 'admin';
+
 export default function Login() {
   const navigate = useNavigate();
   const [role, setRole] = useState<'student' | 'admin'>('student');
@@ -19,7 +22,133 @@ export default function Login() {
       navigate('/admin');
     } else {
       navigate('/home');
+  const [role, setRole] = useState<Role>('student');
+
+  const [form, setForm] = useState({
+    username: '',
+    password: '',
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const API_BASE = 'http://localhost:5001/api';
+
+  useEffect(() => {
+    const studentLoggedIn = localStorage.getItem('student_is_logged_in');
+    const adminLoggedIn = localStorage.getItem('admin_is_logged_in');
+
+    if (studentLoggedIn === 'true') {
+      navigate('/home');
     }
+
+    if (adminLoggedIn === 'true') {
+      navigate('/admin');
+    }
+  }, [navigate]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleLogin = async () => {
+    setMessage('');
+
+    if (!form.username.trim() || !form.password.trim()) {
+      setMessage('Хэрэглэгчийн нэр болон нууц үгээ оруулна уу.');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      if (role === 'student') {
+        const res = await fetch(`${API_BASE}/students/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: form.username.trim().toLowerCase(),
+            password: form.password,
+          }),
+        });
+
+        const data = await res.json();
+
+        console.log('STUDENT LOGIN RESPONSE:', data);
+
+        if (!res.ok || !data.success) {
+          setMessage(data.message || 'Сурагчаар нэвтрэхэд алдаа гарлаа.');
+          return;
+        }
+
+        // Backend дээр approved биш бол success ирэхгүй.
+        // Гэхдээ frontend дээр давхар хамгаалалт хийж байна.
+        if (data.data?.verification_status !== 'approved') {
+          setMessage('Таны бүртгэлийг админ хараахан баталгаажуулаагүй байна.');
+          return;
+        }
+
+        localStorage.setItem('student_user', JSON.stringify(data.data));
+        localStorage.setItem('student_is_logged_in', 'true');
+
+        localStorage.removeItem('admin_user');
+        localStorage.removeItem('admin_is_logged_in');
+
+        navigate('/home');
+        return;
+      }
+
+      if (role === 'admin') {
+        const res = await fetch(`${API_BASE}/admins/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            username: form.username.trim().toLowerCase(),
+            password: form.password,
+          }),
+        });
+
+        const data = await res.json();
+
+        console.log('ADMIN LOGIN RESPONSE:', data);
+
+        if (!res.ok || !data.success) {
+          setMessage(data.message || 'Админаар нэвтрэхэд алдаа гарлаа.');
+          return;
+        }
+
+        localStorage.setItem('admin_user', JSON.stringify(data.data));
+        localStorage.setItem('admin_is_logged_in', 'true');
+
+        localStorage.removeItem('student_user');
+        localStorage.removeItem('student_is_logged_in');
+
+        navigate('/admin');
+      }
+    } catch (error) {
+      console.error('LOGIN ERROR:', error);
+      setMessage('Backend сервертэй холбогдож чадсангүй.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRoleChange = (nextRole: Role) => {
+    setRole(nextRole);
+    setMessage('');
+    setForm({
+      username: '',
+      password: '',
+    });
   };
 
   return (
@@ -36,6 +165,7 @@ export default function Login() {
             <h1 className="text-[#7C3AED] text-[26px] font-bold">
               SafeSchool AI
             </h1>
+
             <p className="text-[#94A3B8] text-[14px] mt-2">
               Аюулгүй орчиндоо тавтай морил
             </p>
@@ -48,6 +178,8 @@ export default function Login() {
           <div className="grid grid-cols-2 gap-3 mb-5">
             <button
               onClick={() => setRole('student')}
+              type="button"
+              onClick={() => handleRoleChange('student')}
               className={`rounded-[20px] border-2 p-4 text-center transition ${
                 role === 'student'
                   ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-[0_8px_22px_rgba(124,58,237,0.18)]'
@@ -63,6 +195,7 @@ export default function Login() {
               >
                 <GraduationCap size={26} />
               </div>
+
               <p className="text-[#312E81] font-bold text-[14px]">
                 Сурагч
               </p>
@@ -70,6 +203,8 @@ export default function Login() {
 
             <button
               onClick={() => setRole('admin')}
+              type="button"
+              onClick={() => handleRoleChange('admin')}
               className={`rounded-[20px] border-2 p-4 text-center transition ${
                 role === 'admin'
                   ? 'border-[#7C3AED] bg-[#F5F3FF] shadow-[0_8px_22px_rgba(124,58,237,0.18)]'
@@ -85,6 +220,7 @@ export default function Login() {
               >
                 <Shield size={26} />
               </div>
+
               <p className="text-[#312E81] font-bold text-[14px]">
                 Админ
               </p>
@@ -99,6 +235,7 @@ export default function Login() {
 
               <div className="mt-2 flex items-center gap-3 bg-[#F8F5FF] border border-[#EDE9FE] rounded-[18px] px-4 py-4">
                 <User className="text-[#8B5CF6]" size={22} />
+
                 <input
                   type="text"
                   placeholder={
@@ -106,6 +243,7 @@ export default function Login() {
                       ? 'Жишээ: admin'
                       : 'Жишээ: Бат'
                   }
+                  placeholder={role === 'admin' ? 'Жишээ: admin' : 'Жишээ: bat_10a'}
                   className="bg-transparent outline-none w-full text-[#312E81] placeholder:text-[#A8A1C6]"
                 />
               </div>
@@ -118,6 +256,7 @@ export default function Login() {
 
               <div className="mt-2 flex items-center gap-3 bg-[#F8F5FF] border border-[#EDE9FE] rounded-[18px] px-4 py-4">
                 <Lock className="text-[#8B5CF6]" size={22} />
+
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -134,6 +273,13 @@ export default function Login() {
           >
             {role === 'admin' ? 'Админаар нэвтрэх' : 'Сурагчаар нэвтрэх'}
             <ArrowRight size={20} />
+            {loading
+              ? 'Нэвтэрч байна...'
+              : role === 'admin'
+                ? 'Админаар нэвтрэх'
+                : 'Сурагчаар нэвтрэх'}
+
+            {!loading && <ArrowRight size={20} />}
           </motion.button>
 
           <p className="text-center text-[#94A3B8] text-[14px] mt-6">
